@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.ttf": "bat",
+        "*.zip": "bat",
+        "*.rmd": "markdown",
+        "math.h": "c"
+    }
+}
