@@ -7,6 +7,7 @@
 typedef struct {
     char isbn[14];                 // ISBN del libro (se puede ajustar el tamaño según lo necesario)
     char titulo[100];              // Título del libro
+    char autor[100];               // Autor del libro
     char fecha_prestamo[11];       // Fecha de préstamo (Formato: YYYY-MM-DD)
     char fecha_devolucion[11];     // Fecha de devolución (Formato: YYYY-MM-DD)
     int estado;                    // Estado del préstamo (0 = activo, 1 = devuelto, 2 = atrasado)

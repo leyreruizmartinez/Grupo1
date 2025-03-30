@@ -5,37 +5,50 @@
 #include "bd.h"
 #include "prestamo.h"
 
+#define MAX_LINEA 256
+
 int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
     FILE *archivo = fopen("historial.csv", "r");
-    if (!archivo) {
-        printf("Error al abrir el archivo de historial.\n");
-        return 0;
+    if (archivo == NULL) {
+        printf("Error al abrir el archivo\n");
+        return -1;
     }
 
-    int i = 0;
-    char linea[256];
+    char linea[MAX_LINEA];
+    int contador = 0;
+    
+    // Leer las líneas del archivo
     while (fgets(linea, sizeof(linea), archivo)) {
-        int id_usuario_leido;
         Prestamo p;
-    
-        // Debug output to print each line
-        printf("%s", linea);
-    
-        // Leemos los datos de cada línea
-        int fieldsRead = sscanf(linea, "%d,%[^,],%[^,],%[^,],%[^,],%d", &id_usuario_leido, p.isbn, p.titulo, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
-        if (fieldsRead != 6) {
-            printf("Error al leer los datos de la línea. Campos leídos: %d\n", fieldsRead);
-            continue;  // Salta esta línea si no se leyeron todos los campos correctamente
+        int id;
+        
+        // Cambiamos el delimitador de ',' a ';'
+        int result = sscanf(linea, "%d;%255[^;];%255[^;];%255[^;];%10[^;];%10[^;];%d", &id, p.isbn, p.titulo, p.autor, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
+
+        if (result == 7) {
+            // Verificamos si el id de usuario coincide con el id de la línea
+            if (id == id_usuario) {
+                printf("ISBN: %s\n", p.isbn);
+                printf("Titulo: %s\n", p.titulo);
+                printf("Autor: %s\n", p.autor);
+                printf("Fecha de prestamo: %s\n", p.fecha_prestamo);
+                printf("Fecha de devolucion: %s\n", p.fecha_devolucion);
+                printf("Estado: %s\n", p.estado == 0 ? "En prestamo" : p.estado == 1 ? "Devuelto" : "Otro");
+                printf("-----------------------------\n");
+                contador++;
+            }
+        } else {
+            // Si no se puede leer la línea correctamente, mostramos un mensaje de error.
+            printf("Error al leer la linea: %s (resultados leidos: %d)\n", linea, result);
         }
-    
-        // Si el id_usuario coincide, lo agregamos al historial
-        if (id_usuario_leido == id_usuario) {
-            prestamos[i] = p;
-            i++;
-        }
-    }    
+    }
+
     fclose(archivo);
-    return i; // Retornamos el número de préstamos encontrados
+    if (contador == 0) {
+        printf("No se encontraron prestamos para el usuario %d\n", id_usuario);
+    }
+
+    return 0;
 }
 
 int tiene_prestamos_atrasados(int id_usuario) {

@@ -7,13 +7,10 @@
 #include "bd.h"
 
 // En prestamo.c
-void pedir_libro(int id_usuario, char* isbn) {
-    printf("Entrando en la función pedir_libro...\n");
-
+void pedir_libro(int id_usuario, char* isbn) {                    
     Libro* libros = leerFicheroLibros("libros.csv");  // Asegúrate de que esta función esté implementada
     int total_libros = contar_libros(libros);         // Necesitas definir esta función para contar los libros
 
-    printf("Total de libros cargados: %d\n", total_libros);
     if (total_libros == 0) {
         printf("No se pudieron cargar los libros.\n");
         return;
@@ -60,7 +57,7 @@ int buscar_libro_por_isbn(Libro* libros, int total_libros, char* isbn) {
 
 void registrar_prestamo(int id_usuario, char* isbn) {
     // Implementa el registro del préstamo aquí, por ejemplo escribiendo en un archivo.
-    printf("Registrando préstamo para el usuario %d con ISBN %s\n", id_usuario, isbn);
+    printf("Registrando prestamo para el usuario %d con ISBN %s\n", id_usuario, isbn);
 }
 
 void devolver_libro(int id_usuario, char* isbn) {

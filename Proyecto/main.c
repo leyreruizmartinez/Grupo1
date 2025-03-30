@@ -8,16 +8,23 @@
 #include "bd.h"
 
 int main(void) {
+
+    int total_libros;
     Libro* libros = leerFicheroLibros("libros.csv");
+    if (libros == NULL) {
+        return 1;
+    }
+
     int id_usuario;
-
     printf("Ingrese su ID de usuario: ");
-    scanf("%d", &id_usuario);
+    if (scanf("%d", &id_usuario) != 1) {
+        return 1;
+    }
+    getchar(); // Consumir el salto de línea después del scanf
 
-    // MENÚ PRINCIPAL
+    // MENU PRINCIPAL
     char str[10];
     do {
-        // Mostramos el menú
         printf("\n--- MENU PRINCIPAL ---\n");
         printf("1. Buscar un libro\n"
                "2. Listar libros disponibles\n"
@@ -29,13 +36,12 @@ int main(void) {
                "8. Salir\n");
         printf("Ingrese una opcion: ");
 
-        // Leemos la opción
-        fgets(str, sizeof(str), stdin);  // Usamos fgets para leer la opción
-        str[strcspn(str, "\n")] = '\0';  // Eliminamos el salto de línea extra
+        fgets(str, sizeof(str), stdin);
+        str[strcspn(str, "\n")] = '\0';
 
-        // ############## BÚSQUEDA DE LIBROS ###############
+        // ############## BUSQUEDA DE LIBROS ###############
         if (str[0] == '1') {
-            printf("\t1. Buscar por título\n"
+            printf("\t1. Buscar por titulo\n"
                    "\t2. Buscar por autor\n"
                    "\t3. Buscar por ISBN\n");
 
@@ -45,7 +51,7 @@ int main(void) {
             str2[strcspn(str2, "\n")] = '\0';
 
             if (str2[0] == '1') {
-                printf("\tIntroduce el título del libro a buscar: ");
+                printf("\tIntroduce el titulo del libro a buscar: ");
                 char titulo[100];
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
@@ -96,25 +102,24 @@ int main(void) {
 
         // ################### LISTAR LIBROS DISPONIBLES #####################
         } else if (str[0] == '2') {
-            printf("Mostrando libros disponibles...\n");
             for (int i = 0; i < 20; i++) {
                 if (libros[i].disponible == 1) {
                     imprimirLibro(libros[i]);
                 }
             }
 
-        // ################### HISTORIAL DE PRÉSTAMOS #####################
+        // ################### HISTORIAL DE PRESTAMOS #####################
         } else if (str[0] == '3') {
             Prestamo prestamos[100];
             mostrar_historial(id_usuario, prestamos);
             if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("Advertencia: Tiene préstamos vencidos. No puede solicitar más libros.\n");
+                printf("Advertencia: Tiene prestamos vencidos. No puede solicitar mas libros.\n");
             }
 
         // ################### PEDIR UN LIBRO #####################
         } else if (str[0] == '4') {
             if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("No puede solicitar más libros hasta devolver los atrasados.\n");
+                printf("No puede solicitar mas libros hasta devolver los atrasados.\n");
             } else {
                 // Pedir el ISBN del libro
                 printf("Ingrese el ISBN del libro que desea pedir: ");
@@ -122,7 +127,7 @@ int main(void) {
                 fgets(isbn, sizeof(isbn), stdin);
                 isbn[strcspn(isbn, "\n")] = '\0'; 
                 
-                pedir_libro(id_usuario, isbn);  // Función que maneja la lógica de préstamo
+                pedir_libro(id_usuario, isbn);  // Funcion que maneja la logica de prestamo
                 // Actualizamos la disponibilidad
                 actualizar_disponibilidad(isbn, -1);  // Disminuir la disponibilidad
             }
@@ -134,17 +139,16 @@ int main(void) {
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
-            devolver_libro(id_usuario, isbn);  // Función que maneja la devolución
+            devolver_libro(id_usuario, isbn);  // Funcion que maneja la devolucion
             // Actualizamos la disponibilidad
             actualizar_disponibilidad(isbn, 1);  // Aumentar la disponibilidad
 
-        // ################### OPCIONES DE NAVEGACIÓN #####################
+        // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
             volver_atras();
         } else if (str[0] == '7') {
             volver_menu();
         } else if (str[0] == '8') {
-            printf("Saliendo...\n");
             break;  // Salir del bucle
         }
 
@@ -153,6 +157,9 @@ int main(void) {
     // Liberamos memoria
     free(libros);
     libros = NULL;
+
+    printf("\nPresione Enter para salir...\n");
+    getchar();
 
     return 0;
 }
