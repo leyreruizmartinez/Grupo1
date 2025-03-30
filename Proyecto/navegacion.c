@@ -3,14 +3,14 @@
 #include "navegacion.h"
 
 void volver_atras() {
-    printf("🔙 Volviendo atrás...\n");
+    printf("Volviendo atrás...\n");
 }
 
 void volver_menu() {
-    printf("🏠 Volviendo al menú principal...\n");
+    printf("Volviendo al menú principal...\n");
 }
 
 void salir_programa() {
-    printf("👋 Saliendo del programa...\n");
+    printf("Saliendo del programa...\n");
     exit(0);
 }

@@ -48,17 +48,30 @@ Libro* leerFicheroLibros(char* nombre_fichero) {
     return array_libros;
 }
 
-void procesarLinea(char* linea, Libro* libro) { //recibimos la direccion en memoria del libro a modificar
+// Procesar línea con validaciones de memoria
+void procesarLinea(char* linea, Libro* libro) {
     char* campo = strtok(linea, ";");
     libro->isbn = malloc(strlen(campo) + 1);
+    if (libro->isbn == NULL) {
+        printf("Error al asignar memoria para el ISBN\n");
+        exit(1);
+    }
     strcpy(libro->isbn, campo);
 
     char* campo2 = strtok(NULL, ";");
     libro->titulo = malloc(strlen(campo2) + 1);
+    if (libro->titulo == NULL) {
+        printf("Error al asignar memoria para el título\n");
+        exit(1);
+    }
     strcpy(libro->titulo, campo2);
 
     char* campo3 = strtok(NULL, ";");
     libro->autor = malloc(strlen(campo3) + 1);
+    if (libro->autor == NULL) {
+        printf("Error al asignar memoria para el autor\n");
+        exit(1);
+    }
     strcpy(libro->autor, campo3);
 
     char* campo4 = strtok(NULL, ";");
@@ -68,7 +81,15 @@ void procesarLinea(char* linea, Libro* libro) { //recibimos la direccion en memo
     sscanf(campo5, "%i", &libro->disponible);
 }
 
-
+// Función para liberar la memoria de los libros encontrados
+void liberarLibros(Libro* libros, int tamanyo) {
+    for (int i = 0; i < tamanyo; i++) {
+        free(libros[i].isbn);
+        free(libros[i].titulo);
+        free(libros[i].autor);
+    }
+    free(libros);
+}
 
 int contarLibrosTitulo(Libro* libros, int tamanyo, char* titulo){
     int contador =0;
@@ -192,4 +213,3 @@ Libro* buscarLibroISBN(Libro* libros, int tamanyo, char* isbn){
     }
     
 }
-

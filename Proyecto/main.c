@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libro.h"
-#include "historial.h"  // Nuevo módulo para manejar préstamos
-#include "navegacion.h" // Nuevo módulo para opciones de salida
+#include "historial.h"
+#include "navegacion.h"
+#include "prestamo.h"
+#include "bd.h"
 
 int main(void) {
     Libro* libros = leerFicheroLibros("libros.csv");
@@ -16,16 +18,16 @@ int main(void) {
     // MENÚ PRINCIPAL
     char str[10];
     do {
-        printf("\n--- MENÚ PRINCIPAL ---\n");
+        printf("\n--- MENU PRINCIPAL ---\n");
         printf("1. Buscar un libro\n"
                "2. Listar libros disponibles\n"
-               "3. Ver historial de préstamos\n"
-               "4. Pedir un libro en préstamo\n"
+               "3. Ver historial de prestamos\n"
+               "4. Pedir un libro en prestamo\n"
                "5. Devolver un libro\n"
-               "6. Volver atrás\n"
-               "7. Volver al menú principal\n"
+               "6. Volver atras\n"
+               "7. Volver al menu principal\n"
                "8. Salir\n");
-        printf("Ingrese una opción: ");
+        printf("Ingrese una opcion: ");
 
         fgets(str, sizeof(str), stdin);
         fflush(stdin);
@@ -110,20 +112,32 @@ int main(void) {
         } else if (str[0] == '3') {
             mostrar_historial(id_usuario);
             if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("⚠️ Advertencia: Tiene préstamos vencidos. No puede solicitar más libros.\n");
+                printf("Advertencia: Tiene préstamos vencidos. No puede solicitar más libros.\n");
             }
 
         // ################### PEDIR UN LIBRO #####################
         } else if (str[0] == '4') {
             if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("❌ No puede solicitar más libros hasta devolver los atrasados.\n");
+                printf("No puede solicitar más libros hasta devolver los atrasados.\n");
             } else {
-                pedir_libro(id_usuario);
+                pedir_libro(id_usuario);  // Función que maneja la lógica de préstamo
+                // Actualizamos la disponibilidad
+                printf("Ingrese el ISBN del libro que desea pedir: ");
+                char isbn[14];
+                fgets(isbn, sizeof(isbn), stdin);
+                isbn[strcspn(isbn, "\n")] = '\0'; 
+                actualizar_disponibilidad(isbn, -1);  // Disminuir la disponibilidad
             }
 
         // ################### DEVOLVER UN LIBRO #####################
         } else if (str[0] == '5') {
-            devolver_libro(id_usuario);
+            devolver_libro(id_usuario);  // Función que maneja la lógica de devolución
+            // Actualizamos la disponibilidad
+            printf("Ingrese el ISBN del libro que desea devolver: ");
+            char isbn[14];
+            fgets(isbn, sizeof(isbn), stdin);
+            isbn[strcspn(isbn, "\n")] = '\0'; 
+            actualizar_disponibilidad(isbn, 1);  // Aumentar la disponibilidad
 
         // ################### OPCIONES DE NAVEGACIÓN #####################
         } else if (str[0] == '6') {

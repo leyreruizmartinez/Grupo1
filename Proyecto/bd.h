@@ -1,8 +1,16 @@
 #ifndef BD_H
 #define BD_H
 
-#include "historial.h"
+#include "libro.h"
+#include "prestamo.h"
 
-int obtener_historial(int id_usuario, Prestamo prestamos[]);
+#define MAX_LIBROS 100
+
+int cargar_libros(Libro libros[]);
+int actualizar_libros(Libro libros[], int total_libros);
+void listar_libros(Libro libros[], int total_libros);
+int buscar_libro(Libro libros[], int total_libros, char *isbn);
+int obtener_historial(int id_usuario, Prestamo prestamos[]);  // Add this declaration
+void actualizar_disponibilidad(char *isbn, int cantidad);  // Add this declaration
 
 #endif

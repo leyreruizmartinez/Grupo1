@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "historial.h"
-#include "bd.h" // Para manejar la base de datos
+#include "bd.h"
+#include "prestamo.h"
 
 void mostrar_historial(int id_usuario) {
     Prestamo prestamos[50]; // Suponiendo que máximo tiene 50 préstamos
@@ -18,11 +19,11 @@ void mostrar_historial(int id_usuario) {
         printf("- 📖 %s (Prestado el %s, devolución el %s) - Estado: ",
                prestamos[i].titulo, prestamos[i].fecha_prestamo, prestamos[i].fecha_devolucion);
         if (prestamos[i].estado == 0) {
-            printf("✅ Devuelto\n");
+            printf("Devuelto\n");
         } else if (prestamos[i].estado == 1) {
-            printf("🟢 Activo\n");
+            printf("Activo\n");
         } else {
-            printf("⚠️ Atrasado\n");
+            printf("Atrasado\n");
         }
     }
 }
