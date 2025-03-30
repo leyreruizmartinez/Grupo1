@@ -5,27 +5,37 @@
 #include "bd.h"
 #include "prestamo.h"
 
-void mostrar_historial(int id_usuario) {
-    Prestamo prestamos[50]; // Suponiendo que máximo tiene 50 préstamos
-    int total = obtener_historial(id_usuario, prestamos); // Función en bd.c
-
-    if (total == 0) {
-        printf("No tiene préstamos registrados.\n");
-        return;
+int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
+    FILE *archivo = fopen("historial.csv", "r");
+    if (!archivo) {
+        printf("Error al abrir el archivo de historial.\n");
+        return 0;
     }
 
-    printf("\nHistorial de préstamos del usuario %d:\n", id_usuario);
-    for (int i = 0; i < total; i++) {
-        printf("- 📖 %s (Prestado el %s, devolución el %s) - Estado: ",
-               prestamos[i].titulo, prestamos[i].fecha_prestamo, prestamos[i].fecha_devolucion);
-        if (prestamos[i].estado == 0) {
-            printf("Devuelto\n");
-        } else if (prestamos[i].estado == 1) {
-            printf("Activo\n");
-        } else {
-            printf("Atrasado\n");
+    int i = 0;
+    char linea[256];
+    while (fgets(linea, sizeof(linea), archivo)) {
+        int id_usuario_leido;
+        Prestamo p;
+    
+        // Debug output to print each line
+        printf("%s", linea);
+    
+        // Leemos los datos de cada línea
+        int fieldsRead = sscanf(linea, "%d,%[^,],%[^,],%[^,],%[^,],%d", &id_usuario_leido, p.isbn, p.titulo, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
+        if (fieldsRead != 6) {
+            printf("Error al leer los datos de la línea. Campos leídos: %d\n", fieldsRead);
+            continue;  // Salta esta línea si no se leyeron todos los campos correctamente
         }
-    }
+    
+        // Si el id_usuario coincide, lo agregamos al historial
+        if (id_usuario_leido == id_usuario) {
+            prestamos[i] = p;
+            i++;
+        }
+    }    
+    fclose(archivo);
+    return i; // Retornamos el número de préstamos encontrados
 }
 
 int tiene_prestamos_atrasados(int id_usuario) {

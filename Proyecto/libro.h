@@ -2,12 +2,12 @@
 #define LIBRO_H_
 
 typedef struct {
-    char* isbn;              // es un número grande para ser int o long
-    char* titulo;
-    char* autor;
-    int anyo_publicacion; 
-    int disponible;  
-    int copias;
+    char* isbn;              // ISBN del libro
+    char* titulo;            // Título del libro
+    char* autor;             // Autor del libro
+    int anyo_publicacion;    // Año de publicación
+    int disponible;          // Si está disponible (0 = no, 1 = sí)
+    int copias;              // Número de copias disponibles
 } Libro;
 
 void imprimirLibro(Libro libro);
@@ -24,4 +24,4 @@ Libro* buscarLibroAutor(Libro* libros, int tamanyo, char* autor);
 int contarLibrosISBN(Libro* libros, int tamanyo, char* isbn);
 Libro* buscarLibroISBN(Libro* libros, int tamanyo, char* isbn);
 
-#endif
+#endif // LIBRO_H_

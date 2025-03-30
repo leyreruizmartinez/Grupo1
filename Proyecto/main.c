@@ -30,7 +30,8 @@ int main(void) {
         printf("Ingrese una opcion: ");
 
         fgets(str, sizeof(str), stdin);
-        fflush(stdin);
+        // Eliminamos el salto de línea extra
+        str[strcspn(str, "\n")] = '\0';
 
         // ############## BÚSQUEDA DE LIBROS ###############
         if (str[0] == '1') {
@@ -41,14 +42,13 @@ int main(void) {
             printf("\t  ");
             char str2[5];
             fgets(str2, sizeof(str2), stdin);
-            fflush(stdin);
+            str2[strcspn(str2, "\n")] = '\0';
 
             if (str2[0] == '1') {
                 printf("\tIntroduce el título del libro a buscar: ");
                 char titulo[100];
                 fgets(titulo, sizeof(titulo), stdin);
-                titulo[strcspn(titulo, "\n")] = '\0'; 
-                fflush(stdin);
+                titulo[strcspn(titulo, "\n")] = '\0';
 
                 int n_libros = contarLibrosTitulo(libros, 20, titulo);
                 Libro* array_libros = buscarLibroTitulo(libros, 20, titulo);
@@ -59,14 +59,12 @@ int main(void) {
                         printf("\n");
                     }
                     free(array_libros);
-                    array_libros = NULL;
                 }
             } else if (str2[0] == '2') {
                 printf("\tIntroduce nombre del autor a buscar: ");
                 char autor[30];
                 fgets(autor, sizeof(autor), stdin);
-                autor[strcspn(autor, "\n")] = '\0'; 
-                fflush(stdin);
+                autor[strcspn(autor, "\n")] = '\0';
 
                 int n_libros = contarLibrosAutor(libros, 20, autor);
                 Libro* array_libros = buscarLibroAutor(libros, 20, autor);
@@ -77,14 +75,12 @@ int main(void) {
                         printf("\n");
                     }
                     free(array_libros);
-                    array_libros = NULL;
                 }
             } else if (str2[0] == '3') {
                 printf("\tIntroduce el ISBN completo del libro a buscar: ");
                 char isbn[14];
                 fgets(isbn, sizeof(isbn), stdin);
-                isbn[strcspn(isbn, "\n")] = '\0'; 
-                fflush(stdin);
+                isbn[strcspn(isbn, "\n")] = '\0';
 
                 int n_libros = contarLibrosISBN(libros, 20, isbn);
                 Libro* array_libros = buscarLibroISBN(libros, 20, isbn);
@@ -95,7 +91,6 @@ int main(void) {
                         printf("\n");
                     }
                     free(array_libros);
-                    array_libros = NULL;
                 }
             }
 
@@ -110,7 +105,8 @@ int main(void) {
 
         // ################### HISTORIAL DE PRÉSTAMOS #####################
         } else if (str[0] == '3') {
-            mostrar_historial(id_usuario);
+            Prestamo prestamos[100];
+            mostrar_historial(id_usuario, prestamos);
             if (tiene_prestamos_atrasados(id_usuario)) {
                 printf("Advertencia: Tiene préstamos vencidos. No puede solicitar más libros.\n");
             }
@@ -145,16 +141,13 @@ int main(void) {
         } else if (str[0] == '7') {
             volver_menu();
         } else if (str[0] == '8') {
-            salir_programa();
+            printf("Saliendo...\n");
+            break;  // Salir del bucle
         }
 
-    } while (str[0] != 's'); // La opción 's' termina el programa.
+    } while (1); // El bucle termina solo cuando se presiona '8'
 
     // Liberamos memoria
-    for (int i = 0; i < 20; i++) {
-        free(libros[i].titulo);
-        free(libros[i].autor);
-    }
     free(libros);
     libros = NULL;
 

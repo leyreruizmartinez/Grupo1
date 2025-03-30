@@ -4,7 +4,7 @@
 #include "prestamo.h"
 
 // Funciones
-void mostrar_historial(int id_usuario);
+int mostrar_historial(int id_usuario, Prestamo prestamos[]);  // Nota el punto y coma aquí
 int tiene_prestamos_atrasados(int id_usuario);
 
 #endif

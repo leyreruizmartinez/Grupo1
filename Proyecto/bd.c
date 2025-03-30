@@ -59,10 +59,48 @@ int buscar_libro(Libro libros[], int total_libros, char *isbn) {
 }
 
 int obtener_historial(int id_usuario, Prestamo prestamos[]) {
-    // Implement the logic to fetch historical data from file/database
-    return 0;  // Replace with actual return value
+    // Simulate reading from a file/database for historical data
+    // Here we just return a fixed number for illustration
+    // Replace this with the actual logic to read from a file or DB
+
+    // Example: Simulate some transactions for user with id `id_usuario`
+    for (int i = 0; i < 5; i++) {
+        prestamos[i].estado = (i % 2 == 0) ? 1 : 0;  // Simulate alternating between active and returned loans
+        snprintf(prestamos[i].titulo, sizeof(prestamos[i].titulo), "Libro %d", i + 1);
+        snprintf(prestamos[i].fecha_prestamo, sizeof(prestamos[i].fecha_prestamo), "2025-03-%02d", i + 1);
+        snprintf(prestamos[i].fecha_devolucion, sizeof(prestamos[i].fecha_devolucion), "2025-04-%02d", i + 1);
+    }
+    return 5;  // Assuming 5 transactions for this example
 }
 
-void actualizar_disponibilidad(char *isbn, int cantidad) {
-    // Implement availability update logic
+
+void actualizar_disponibilidad(char* isbn, int cambio) {
+    FILE *fp = fopen("libros.csv", "r+");
+    if (!fp) {
+        printf("Error al abrir el archivo de libros.\n");
+        return;
+    }
+
+    char linea[100];
+    long pos;
+    while (fgets(linea, sizeof(linea), fp)) {
+        char isbn_file[14];
+        int disponible, copias;
+
+        sscanf(linea, "%13s;%*[^;];%*[^;];%*d;%d;%d", isbn_file, &disponible, &copias);
+
+        if (strcmp(isbn, isbn_file) == 0) {
+            disponible += cambio;  // Update available status
+
+            // Save the current position to update the line later
+            pos = ftell(fp) - strlen(linea); 
+
+            // Write the updated line
+            fseek(fp, pos, SEEK_SET);
+            fprintf(fp, "%s;%s;%s;%d;%d;%d\n", isbn_file, /*title*/"", /*author*/"", /*year*/0, disponible, copias);
+            break;
+        }
+    }
+    fclose(fp);
 }
+
