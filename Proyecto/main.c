@@ -13,11 +13,11 @@ int main(void) {
 
     printf("Ingrese su ID de usuario: ");
     scanf("%d", &id_usuario);
-    getchar(); // Consumir el salto de línea después del scanf
 
     // MENÚ PRINCIPAL
     char str[10];
     do {
+        // Mostramos el menú
         printf("\n--- MENU PRINCIPAL ---\n");
         printf("1. Buscar un libro\n"
                "2. Listar libros disponibles\n"
@@ -29,9 +29,9 @@ int main(void) {
                "8. Salir\n");
         printf("Ingrese una opcion: ");
 
-        fgets(str, sizeof(str), stdin);
-        // Eliminamos el salto de línea extra
-        str[strcspn(str, "\n")] = '\0';
+        // Leemos la opción
+        fgets(str, sizeof(str), stdin);  // Usamos fgets para leer la opción
+        str[strcspn(str, "\n")] = '\0';  // Eliminamos el salto de línea extra
 
         // ############## BÚSQUEDA DE LIBROS ###############
         if (str[0] == '1') {
@@ -116,23 +116,26 @@ int main(void) {
             if (tiene_prestamos_atrasados(id_usuario)) {
                 printf("No puede solicitar más libros hasta devolver los atrasados.\n");
             } else {
-                pedir_libro(id_usuario);  // Función que maneja la lógica de préstamo
-                // Actualizamos la disponibilidad
+                // Pedir el ISBN del libro
                 printf("Ingrese el ISBN del libro que desea pedir: ");
                 char isbn[14];
                 fgets(isbn, sizeof(isbn), stdin);
                 isbn[strcspn(isbn, "\n")] = '\0'; 
+                
+                pedir_libro(id_usuario, isbn);  // Función que maneja la lógica de préstamo
+                // Actualizamos la disponibilidad
                 actualizar_disponibilidad(isbn, -1);  // Disminuir la disponibilidad
             }
 
         // ################### DEVOLVER UN LIBRO #####################
         } else if (str[0] == '5') {
-            devolver_libro(id_usuario);  // Función que maneja la lógica de devolución
-            // Actualizamos la disponibilidad
             printf("Ingrese el ISBN del libro que desea devolver: ");
             char isbn[14];
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
+
+            devolver_libro(id_usuario, isbn);  // Función que maneja la devolución
+            // Actualizamos la disponibilidad
             actualizar_disponibilidad(isbn, 1);  // Aumentar la disponibilidad
 
         // ################### OPCIONES DE NAVEGACIÓN #####################

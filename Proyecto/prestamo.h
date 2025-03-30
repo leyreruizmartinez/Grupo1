@@ -1,6 +1,8 @@
 #ifndef PRESTAMO_H
 #define PRESTAMO_H
 
+#include "libro.h"
+
 // Definición de la estructura para un préstamo
 typedef struct {
     char isbn[14];                 // ISBN del libro (se puede ajustar el tamaño según lo necesario)
@@ -16,7 +18,10 @@ typedef struct {
 #define ESTADO_ATRASADO 2   // El préstamo está atrasado
 
 // Declaración de funciones
-void pedir_libro(int id_usuario);   // Función para pedir un libro en préstamo
-void devolver_libro(int id_usuario); // Función para devolver un libro
+void pedir_libro(int id_usuario, char* isbn);   // Función para pedir un libro en préstamo
+void devolver_libro(int id_usuario, char* isbn);
+int contar_libros(Libro* libros);
+int buscar_libro_por_isbn(Libro* libros, int total_libros, char* isbn);
+void registrar_prestamo(int id_usuario, char* isbn);
 
 #endif

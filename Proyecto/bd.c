@@ -9,18 +9,33 @@
 int cargar_libros(Libro libros[]) {
     FILE *archivo = fopen("libros.csv", "r");
     if (!archivo) {
-        printf("Error al abrir el archivo de libros.\n");
+        printf("Error: No se pudo abrir el archivo de libros.\n");
         return 0;
     }
 
+    printf("Archivo de libros abierto correctamente.\n");
+
     int i = 0;
-    while (fscanf(archivo, "%[^;];%[^;];%[^;];%d;%d;%d\n",
-                  libros[i].isbn, libros[i].titulo, libros[i].autor,
-                  &libros[i].anyo_publicacion, &libros[i].disponible, &libros[i].copias) == 6) {
-        i++;
+    char linea[256]; // Buffer para leer cada línea
+
+    while (fgets(linea, sizeof(linea), archivo)) {
+        printf("Leyendo línea: %s", linea); // Muestra la línea completa
+
+        // Intenta leer los datos usando sscanf
+        int leidos = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d",
+                            libros[i].isbn, libros[i].titulo, libros[i].autor,
+                            &libros[i].anyo_publicacion, &libros[i].disponible, &libros[i].copias);
+
+        if (leidos == 6) {
+            printf("Libro cargado: %s (%d copias)\n", libros[i].titulo, libros[i].copias);
+            i++;
+        } else {
+            printf("Error al leer la línea: %s\n", linea);
+        }
     }
-    
+
     fclose(archivo);
+    printf("Total de libros cargados: %d\n", i);
     return i;
 }
 
@@ -49,12 +64,14 @@ void listar_libros(Libro libros[], int total_libros) {
     }
 }
 
-int buscar_libro(Libro libros[], int total_libros, char *isbn) {
+int buscar_libro(Libro libros[], int total_libros, char isbn[]) {
     for (int i = 0; i < total_libros; i++) {
         if (strcmp(libros[i].isbn, isbn) == 0) {
+            printf("Libro encontrado: %s\n", libros[i].titulo);  // Mensaje de depuración
             return i;
         }
     }
+    printf("No se encontró el libro con ISBN: %s\n", isbn);  // Mensaje si no se encuentra
     return -1;
 }
 
@@ -72,7 +89,6 @@ int obtener_historial(int id_usuario, Prestamo prestamos[]) {
     }
     return 5;  // Assuming 5 transactions for this example
 }
-
 
 void actualizar_disponibilidad(char* isbn, int cambio) {
     FILE *fp = fopen("libros.csv", "r+");

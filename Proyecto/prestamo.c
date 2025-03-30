@@ -1,94 +1,69 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 #include "prestamo.h"
 #include "libro.h"
 #include "bd.h"
 
-void pedir_libro(int id_usuario) {
-    Libro libros[MAX_LIBROS];
-    int total_libros = cargar_libros(libros);
-    if (total_libros == 0) return;
+// En prestamo.c
+void pedir_libro(int id_usuario, char* isbn) {
+    printf("Entrando en la función pedir_libro...\n");
 
-    char isbn[20];
-    printf("Ingrese el ISBN del libro que desea pedir: ");
-    scanf("%s", isbn);
+    Libro* libros = leerFicheroLibros("libros.csv");  // Asegúrate de que esta función esté implementada
+    int total_libros = contar_libros(libros);         // Necesitas definir esta función para contar los libros
 
-    int indice = buscar_libro(libros, total_libros, isbn);
-    if (indice == -1 || libros[indice].copias == 0) {
+    printf("Total de libros cargados: %d\n", total_libros);
+    if (total_libros == 0) {
+        printf("No se pudieron cargar los libros.\n");
+        return;
+    }
+
+    int indice = buscar_libro_por_isbn(libros, total_libros, isbn);  // Debes implementar esta función
+    if (indice == -1 || libros[indice].disponible == 0) {
         printf("El libro no está disponible.\n");
         return;
     }
 
-    libros[indice].copias--;
-    libros[indice].disponible = 1;
-    actualizar_libros(libros, total_libros);
+    // Realiza el préstamo
+    printf("Libro encontrado: %s\n", libros[indice].titulo);
+
+    // Registrar el préstamo en el archivo
+    registrar_prestamo(id_usuario, isbn);  // Esta es una función que necesitarías implementar
+
+    // Actualizamos la disponibilidad
+    actualizar_disponibilidad(isbn, -1);  // Disminuir la disponibilidad
 
     printf("El usuario %d ha pedido el libro '%s'.\n", id_usuario, libros[indice].titulo);
+
+    // Liberamos memoria
+    free(libros);
 }
 
-void devolver_libro(int id_usuario) {
-    FILE *fp = fopen("prestamos.csv", "r+");
-    if (!fp) {
-        printf("No se pudo abrir el archivo de préstamos.\n");
-        return;
+// Definiciones de las funciones
+int contar_libros(Libro* libros) {
+    int count = 0;
+    while (libros[count].isbn != NULL) {
+        count++;
     }
+    return count;
+}
 
-    char linea[100];
-    int num_prestamos = 0;
-    char isbn_prestamos[10][14];  // Máximo 10 libros por usuario
-
-    printf("\n--- Libros en préstamo ---\n");
-
-    // Leer el archivo y mostrar los libros del usuario
-    while (fgets(linea, sizeof(linea), fp)) {
-        int usuario_id;
-        char isbn[14];
-
-        sscanf(linea, "%d;%13s", &usuario_id, isbn);
-        if (usuario_id == id_usuario) {
-            printf("%d. ISBN: %s\n", num_prestamos + 1, isbn);
-            strcpy(isbn_prestamos[num_prestamos], isbn);
-            num_prestamos++;
+int buscar_libro_por_isbn(Libro* libros, int total_libros, char* isbn) {
+    for (int i = 0; i < total_libros; i++) {
+        if (strcmp(libros[i].isbn, isbn) == 0) {
+            return i;
         }
     }
+    return -1;
+}
 
-    if (num_prestamos == 0) {
-        printf("No tienes libros en préstamo.\n");
-        fclose(fp);
-        return;
-    }
+void registrar_prestamo(int id_usuario, char* isbn) {
+    // Implementa el registro del préstamo aquí, por ejemplo escribiendo en un archivo.
+    printf("Registrando préstamo para el usuario %d con ISBN %s\n", id_usuario, isbn);
+}
 
-    // Pedir al usuario que seleccione cuál devolver
-    int opcion;
-    printf("Seleccione el número del libro que desea devolver: ");
-    scanf("%d", &opcion);
-    getchar();  // Consumir el salto de línea
-
-    if (opcion < 1 || opcion > num_prestamos) {
-        printf("Selección inválida.\n");
-        fclose(fp);
-        return;
-    }
-
-    // Reescribir el archivo de préstamos sin el libro seleccionado
-    FILE *temp = fopen("temp.csv", "w");
-    while (fgets(linea, sizeof(linea), fp)) {
-        int usuario_id;
-        char isbn[14];
-
-        sscanf(linea, "%d;%13s", &usuario_id, isbn);
-        if (!(usuario_id == id_usuario && strcmp(isbn, isbn_prestamos[opcion - 1]) == 0)) {
-            fprintf(temp, "%d;%s\n", usuario_id, isbn);
-        }
-    }
-
-    fclose(fp);
-    fclose(temp);
-    remove("prestamos.csv");
-    rename("temp.csv", "prestamos.csv");
-
-    // Actualizar la disponibilidad del libro en la base de datos
-    actualizar_disponibilidad(isbn_prestamos[opcion - 1], 1);
-
-    printf("Libro devuelto con éxito.\n");
+void devolver_libro(int id_usuario, char* isbn) {
+    // Implementación de la función
+    printf("Devolviendo el libro con ISBN: %s para el usuario %d\n", isbn, id_usuario);
 }
