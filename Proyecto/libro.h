@@ -14,7 +14,6 @@ void imprimirLibro(Libro libro);
 void procesarLinea(char* linea, Libro* libro);
 Libro* leerFicheroLibros(char* nombre_fichero, int *num_libros);
 
-// Funciones de búsqueda
 int contarLibrosTitulo(Libro* libros, int tamanyo, char* titulo);
 Libro* buscarLibroTitulo(Libro* libros, int tamanyo, char* titulo);
 
@@ -24,4 +23,4 @@ Libro* buscarLibroAutor(Libro* libros, int tamanyo, char* autor);
 int contarLibrosISBN(Libro* libros, int tamanyo, char* isbn);
 Libro* buscarLibroISBN(Libro* libros, int tamanyo, char* isbn);
 
-#endif // LIBRO_H_
+#endif

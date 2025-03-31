@@ -5,7 +5,7 @@
 
 // Definición de la estructura para un préstamo
 typedef struct {
-    char isbn[14];                 // ISBN del libro (se puede ajustar el tamaño según lo necesario)
+    char isbn[14];                 // ISBN del libro
     char titulo[100];              // Título del libro
     char autor[100];               // Autor del libro
     char fecha_prestamo[11];       // Fecha de préstamo (Formato: YYYY-MM-DD)
@@ -19,7 +19,7 @@ typedef struct {
 #define ESTADO_ATRASADO 2   // El préstamo está atrasado
 
 // Declaración de funciones
-void pedir_libro(int id_usuario, char* isbn);   // Función para pedir un libro en préstamo
+void pedir_libro(int id_usuario, char* isbn);
 void devolver_libro(int id_usuario, char* isbn);
 int contar_libros(Libro* libros);
 int buscar_libro_por_isbn(Libro* libros, int total_libros, char* isbn);

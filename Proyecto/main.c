@@ -21,7 +21,7 @@ int main(void) {
     if (scanf("%d", &id_usuario) != 1) {
         return 1;
     }
-    getchar(); // Consumir el salto de línea después del scanf
+    getchar();
 
     // MENU PRINCIPAL
     char str[10];
@@ -110,7 +110,7 @@ int main(void) {
         // ################### LISTAR LIBROS DISPONIBLES #####################
         } else if (str[0] == '2') {
             int libros_disponibles = 0;
-            for (int i = 0; i < num_libros; i++) {  // Reemplazado 20 por num_libros
+            for (int i = 0; i < num_libros; i++) {
                 if (libros[i].disponible == 1) {
                     imprimirLibro(libros[i]);
                     libros_disponibles++;
@@ -133,13 +133,12 @@ int main(void) {
             if (tiene_prestamos_atrasados(id_usuario)) {
                 printf("No puede solicitar mas libros hasta devolver los atrasados.\n");
             } else {
-                // Pedir el ISBN del libro
                 printf("Ingrese el ISBN del libro que desea pedir: ");
                 char isbn[14];
                 fgets(isbn, sizeof(isbn), stdin);
                 isbn[strcspn(isbn, "\n")] = '\0'; 
                 
-                pedir_libro(id_usuario, isbn);  // Funcion que maneja la logica de prestamo
+                pedir_libro(id_usuario, isbn);
             }
 
         // ################### DEVOLVER UN LIBRO #####################
@@ -149,7 +148,7 @@ int main(void) {
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
-            devolver_libro(id_usuario, isbn);  // Funcion que maneja la devolucion
+            devolver_libro(id_usuario, isbn);
 
         // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
@@ -157,10 +156,10 @@ int main(void) {
         } else if (str[0] == '7') {
             volver_menu();
         } else if (str[0] == '8') {
-            break;  // Salir del bucle
+            break;
         }
 
-    } while (1); // El bucle termina solo cuando se presiona '8'
+    } while (1);
 
     // Liberamos memoria
     free(libros);

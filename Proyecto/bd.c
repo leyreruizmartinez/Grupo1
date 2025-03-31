@@ -5,7 +5,6 @@
 #include "libro.h"
 #include "prestamo.h"
 
-// Function definitions
 int cargar_libros(Libro libros[]) {
     FILE *archivo = fopen("libros.csv", "r");
     if (!archivo) {
@@ -16,12 +15,11 @@ int cargar_libros(Libro libros[]) {
     printf("Archivo de libros abierto correctamente.\n");
 
     int i = 0;
-    char linea[256]; // Buffer para leer cada línea
+    char linea[256];
 
     while (fgets(linea, sizeof(linea), archivo)) {
-        printf("Leyendo línea: %s", linea); // Muestra la línea completa
+        printf("Leyendo línea: %s", linea);
 
-        // Intenta leer los datos usando sscanf
         int leidos = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d",
                             libros[i].isbn, libros[i].titulo, libros[i].autor,
                             &libros[i].anyo_publicacion, &libros[i].disponible, &libros[i].copias);
@@ -67,25 +65,21 @@ void listar_libros(Libro libros[], int total_libros) {
 int buscar_libro(Libro libros[], int total_libros, char isbn[]) {
     for (int i = 0; i < total_libros; i++) {
         if (strcmp(libros[i].isbn, isbn) == 0) {
-            printf("Libro encontrado: %s\n", libros[i].titulo);  // Mensaje de depuración
+            printf("Libro encontrado: %s\n", libros[i].titulo);
             return i;
         }
     }
-    printf("No se encontro el libro con ISBN: %s\n", isbn);  // Mensaje si no se encuentra
+    printf("No se encontro el libro con ISBN: %s\n", isbn);
     return -1;
 }
 
 int obtener_historial(int id_usuario, Prestamo prestamos[]) {
-    // Simulate reading from a file/database for historical data
-    // Here we just return a fixed number for illustration
-    // Replace this with the actual logic to read from a file or DB
 
-    // Example: Simulate some transactions for user with id `id_usuario`
     for (int i = 0; i < 5; i++) {
-        prestamos[i].estado = (i % 2 == 0) ? 1 : 0;  // Simulate alternating between active and returned loans
+        prestamos[i].estado = (i % 2 == 0) ? 1 : 0;
         snprintf(prestamos[i].titulo, sizeof(prestamos[i].titulo), "Libro %d", i + 1);
         snprintf(prestamos[i].fecha_prestamo, sizeof(prestamos[i].fecha_prestamo), "2025-03-%02d", i + 1);
         snprintf(prestamos[i].fecha_devolucion, sizeof(prestamos[i].fecha_devolucion), "2025-04-%02d", i + 1);
     }
-    return 5;  // Assuming 5 transactions for this example
+    return 5;
 }

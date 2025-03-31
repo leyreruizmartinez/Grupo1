@@ -22,11 +22,9 @@ int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
         Prestamo p;
         int id;
         
-        // Cambiamos el delimitador de ',' a ';'
         int result = sscanf(linea, "%d;%255[^;];%255[^;];%255[^;];%10[^;];%10[^;];%d", &id, p.isbn, p.titulo, p.autor, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
 
         if (result == 7) {
-            // Verificamos si el id de usuario coincide con el id de la línea
             if (id == id_usuario) {
                 printf("ISBN: %s\n", p.isbn);
                 printf("Titulo: %s\n", p.titulo);
@@ -38,7 +36,6 @@ int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
                 contador++;
             }
         } else {
-            // Si no se puede leer la línea correctamente, mostramos un mensaje de error.
             printf("Error al leer la linea: %s (resultados leidos: %d)\n", linea, result);
         }
     }
@@ -57,7 +54,7 @@ int tiene_prestamos_atrasados(int id_usuario) {
 
     for (int i = 0; i < total; i++) {
         if (prestamos[i].estado == 2) {
-            return 1; // Tiene préstamos atrasados
+            return 1;
         }
     }
     return 0;

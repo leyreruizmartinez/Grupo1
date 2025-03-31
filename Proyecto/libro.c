@@ -14,43 +14,39 @@ Libro* leerFicheroLibros(char* nombre_fichero, int* num_libros) {
     int max_c = 150;
 
     if (fichero == NULL) {
-        exit(1); // Si no puede abrir el archivo, termina el programa
+        exit(1);
     }
 
     char linea[max_c];
     char c;
     int i = 0;
 
-    // Inicializamos un array dinámico para los libros
-    Libro* array_libros = (Libro*)malloc(20 * sizeof(Libro)); // Inicializamos con espacio para 20 libros
+    Libro* array_libros = (Libro*)malloc(20 * sizeof(Libro));
     int index = 0;
 
-    // Leemos línea por línea
     while ((c = fgetc(fichero)) != EOF) {
         if (c == '\n') {
             linea[i] = '\0';
             procesarLinea(linea, &array_libros[index]);
             index++;
 
-            // Si se alcanza la capacidad máxima, redimensionamos el array
             if (index >= 20) {
                 array_libros = (Libro*)realloc(array_libros, (index + 20) * sizeof(Libro));
             }
 
-            i = 0; // Reiniciamos el índice para la siguiente línea
+            i = 0;
         } else {
             linea[i++] = c;
         }
     }
 
-    // Procesamos la última línea si es necesario
     if (i > 0) {
         linea[i] = '\0';
         procesarLinea(linea, &array_libros[index]);
         index++;
     }
 
-    *num_libros = index;  // Devolvemos el número de libros leídos
+    *num_libros = index;
     fclose(fichero);
     return array_libros;
 }
@@ -84,7 +80,7 @@ void procesarLinea(char* linea, Libro* libro) {
     sscanf(campo5, "%i", &libro->disponible);
 
     char* campo6 = strtok(NULL, ";");
-    sscanf(campo6, "%i", &libro->copias); // Asegúrate de que el campo para copias está presente
+    sscanf(campo6, "%i", &libro->copias);
 }
 
 void liberarLibros(Libro* libros, int tamanyo) {
@@ -187,7 +183,6 @@ Libro* buscarLibroISBN(Libro* libros, int tamanyo, char* isbn) {
 }
 
 void buscarYImprimirPorAutor(Libro* libros, int tamanyo, char* autor) {
-    // Llamamos a la función que busca los libros por autor
     Libro* librosEncontrados = buscarLibroAutor(libros, tamanyo, autor);
     
     if (librosEncontrados == NULL) {
@@ -195,8 +190,8 @@ void buscarYImprimirPorAutor(Libro* libros, int tamanyo, char* autor) {
     } else {
         printf("Libros encontrados por el autor '%s':\n", autor);
         for (int i = 0; i < contarLibrosAutor(libros, tamanyo, autor); i++) {
-            imprimirLibro(librosEncontrados[i]);  // Imprimimos cada libro encontrado
+            imprimirLibro(librosEncontrados[i]);
         }
-        free(librosEncontrados);  // Liberamos la memoria después de imprimir
+        free(librosEncontrados);
     }
 }
