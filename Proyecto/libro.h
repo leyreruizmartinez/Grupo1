@@ -12,7 +12,7 @@ typedef struct {
 
 void imprimirLibro(Libro libro);
 void procesarLinea(char* linea, Libro* libro);
-Libro* leerFicheroLibros(char* nombre_fichero);
+Libro* leerFicheroLibros(char* nombre_fichero, int *num_libros);
 
 // Funciones de búsqueda
 int contarLibrosTitulo(Libro* libros, int tamanyo, char* titulo);

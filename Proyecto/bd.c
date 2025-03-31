@@ -71,7 +71,7 @@ int buscar_libro(Libro libros[], int total_libros, char isbn[]) {
             return i;
         }
     }
-    printf("No se encontró el libro con ISBN: %s\n", isbn);  // Mensaje si no se encuentra
+    printf("No se encontro el libro con ISBN: %s\n", isbn);  // Mensaje si no se encuentra
     return -1;
 }
 
@@ -88,64 +88,4 @@ int obtener_historial(int id_usuario, Prestamo prestamos[]) {
         snprintf(prestamos[i].fecha_devolucion, sizeof(prestamos[i].fecha_devolucion), "2025-04-%02d", i + 1);
     }
     return 5;  // Assuming 5 transactions for this example
-}
-
-void actualizar_disponibilidad(char* isbn, int cambio) {
-    FILE *fp = fopen("libros.csv", "r+");
-    if (!fp) {
-        printf("Error al abrir el archivo de libros.\n");
-        return;
-    }
-
-    // Crear un archivo temporal para almacenar los cambios
-    char linea[100];
-    char archivo_temp[1000] = "";
-    int encontrado = 0;
-
-    // Leer el archivo línea por línea
-    while (fgets(linea, sizeof(linea), fp)) {
-        char isbn_file[14], titulo[100], autor[100];
-        int disponible, copias, anyo;
-
-        // Leer todos los campos de la línea
-        sscanf(linea, "%13s;%99[^;];%99[^;];%d;%d;%d", isbn_file, titulo, autor, &anyo, &disponible, &copias);
-
-        // Verificar si es el libro que queremos modificar
-        if (strcmp(isbn, isbn_file) == 0) {
-            disponible += cambio;  // Actualizar la disponibilidad
-            encontrado = 1;
-        }
-
-        // Formatear la línea actualizada
-        char nueva_linea[200];
-        if (encontrado) {
-            // Si encontramos el libro, actualizamos su disponibilidad
-            snprintf(nueva_linea, sizeof(nueva_linea), "%s;%s;%s;%d;%d;%d\n", isbn_file, titulo, autor, anyo, disponible, copias);
-        } else {
-            // Si no es el libro a modificar, dejamos la línea como está
-            snprintf(nueva_linea, sizeof(nueva_linea), "%s;%s;%s;%d;%d;%d\n", isbn_file, titulo, autor, anyo, disponible, copias);
-        }
-
-        // Concatenar la línea al archivo temporal
-        strcat(archivo_temp, nueva_linea);
-    }
-
-    // Si no se encontró el libro, no modificamos el archivo
-    if (!encontrado) {
-        printf("Libro con ISBN %s no encontrado.\n", isbn);
-        fclose(fp);
-        return;
-    }
-
-    // Volver a abrir el archivo para escribir la información modificada
-    freopen("libros.csv", "w", fp);
-    if (!fp) {
-        printf("Error al abrir el archivo de libros para escritura.\n");
-        return;
-    }
-
-    // Escribir el contenido completo al archivo
-    fputs(archivo_temp, fp);
-
-    fclose(fp);
 }

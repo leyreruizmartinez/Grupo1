@@ -10,7 +10,8 @@
 int main(void) {
 
     int total_libros;
-    Libro* libros = leerFicheroLibros("libros.csv");
+    int num_libros;
+    Libro* libros = leerFicheroLibros("libros.csv", &num_libros);
     if (libros == NULL) {
         return 1;
     }
@@ -56,15 +57,17 @@ int main(void) {
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
 
-                int n_libros = contarLibrosTitulo(libros, 20, titulo);
-                Libro* array_libros = buscarLibroTitulo(libros, 20, titulo);
+                int n_libros = contarLibrosTitulo(libros, num_libros, titulo);
+                Libro* array_libros = buscarLibroTitulo(libros, num_libros, titulo);
 
-                if (array_libros != NULL) {
+                if (array_libros != NULL && n_libros > 0) {
                     for (int i = 0; i < n_libros; i++) {
                         imprimirLibro(array_libros[i]);
                         printf("\n");
                     }
                     free(array_libros);
+                } else {
+                    printf("No se encontraron libros con el título '%s'.\n", titulo);
                 }
             } else if (str2[0] == '2') {
                 printf("\tIntroduce nombre del autor a buscar: ");
@@ -72,15 +75,17 @@ int main(void) {
                 fgets(autor, sizeof(autor), stdin);
                 autor[strcspn(autor, "\n")] = '\0';
 
-                int n_libros = contarLibrosAutor(libros, 20, autor);
-                Libro* array_libros = buscarLibroAutor(libros, 20, autor);
+                int n_libros = contarLibrosAutor(libros, num_libros, autor);
+                Libro* array_libros = buscarLibroAutor(libros, num_libros, autor);
 
-                if (array_libros != NULL) {
+                if (array_libros != NULL && n_libros > 0) {
                     for (int i = 0; i < n_libros; i++) {
                         imprimirLibro(array_libros[i]);
                         printf("\n");
                     }
                     free(array_libros);
+                } else {
+                    printf("No se encontraron libros de autor '%s'.\n", autor);
                 }
             } else if (str2[0] == '3') {
                 printf("\tIntroduce el ISBN completo del libro a buscar: ");
@@ -88,24 +93,31 @@ int main(void) {
                 fgets(isbn, sizeof(isbn), stdin);
                 isbn[strcspn(isbn, "\n")] = '\0';
 
-                int n_libros = contarLibrosISBN(libros, 20, isbn);
-                Libro* array_libros = buscarLibroISBN(libros, 20, isbn);
+                int n_libros = contarLibrosISBN(libros, num_libros, isbn);
+                Libro* array_libros = buscarLibroISBN(libros, num_libros, isbn);
 
-                if (array_libros != NULL) {
+                if (array_libros != NULL && n_libros > 0) {
                     for (int i = 0; i < n_libros; i++) {
                         imprimirLibro(array_libros[i]);
                         printf("\n");
                     }
                     free(array_libros);
+                } else {
+                    printf("No se encontraron libros con el ISBN '%s'.\n", isbn);
                 }
             }
 
         // ################### LISTAR LIBROS DISPONIBLES #####################
         } else if (str[0] == '2') {
-            for (int i = 0; i < 20; i++) {
+            int libros_disponibles = 0;
+            for (int i = 0; i < num_libros; i++) {  // Reemplazado 20 por num_libros
                 if (libros[i].disponible == 1) {
                     imprimirLibro(libros[i]);
+                    libros_disponibles++;
                 }
+            }
+            if (libros_disponibles == 0) {
+                printf("No hay libros disponibles actualmente.\n");
             }
 
         // ################### HISTORIAL DE PRESTAMOS #####################
@@ -128,8 +140,6 @@ int main(void) {
                 isbn[strcspn(isbn, "\n")] = '\0'; 
                 
                 pedir_libro(id_usuario, isbn);  // Funcion que maneja la logica de prestamo
-                // Actualizamos la disponibilidad
-                actualizar_disponibilidad(isbn, -1);  // Disminuir la disponibilidad
             }
 
         // ################### DEVOLVER UN LIBRO #####################
@@ -140,8 +150,6 @@ int main(void) {
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
             devolver_libro(id_usuario, isbn);  // Funcion que maneja la devolucion
-            // Actualizamos la disponibilidad
-            actualizar_disponibilidad(isbn, 1);  // Aumentar la disponibilidad
 
         // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
