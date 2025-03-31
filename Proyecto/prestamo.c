@@ -127,84 +127,86 @@ void devolver_libro(int id_usuario, char* isbn) {
     Libro* libros = leerFicheroLibros("libros.csv", &num_libros);
 
     int encontrado = 0;
-    for (int i = 0; i < num_libros; i++) {
-        if (strcmp(libros[i].isbn, isbn) == 0) {
-            // Verificamos si el libro está prestado
-            FILE* archivo_historial = fopen("historial.csv", "r+");
-            if (archivo_historial == NULL) {
-                printf("Error al abrir el archivo de historial\n");
-                free(libros);
-                return;
-            }
+    FILE* archivo_historial = fopen("historial.csv", "r");
+    if (archivo_historial == NULL) {
+        printf("Error al abrir el archivo de historial\n");
+        free(libros);
+        return;
+    }
 
-            char linea[256];
-            long posicion = -1;
+    FILE* archivo_temp = fopen("historial_temp.csv", "w");
+    if (archivo_temp == NULL) {
+        printf("Error al abrir el archivo temporal\n");
+        fclose(archivo_historial);
+        free(libros);
+        return;
+    }
 
-            // Leemos todo el archivo de historial
-            while (fgets(linea, sizeof(linea), archivo_historial)) {
-                char* token = strtok(linea, ";");
-                int usuario_id = atoi(token);  // ID del usuario
-                token = strtok(NULL, ";");
-                char* libro_isbn = token;  // ISBN del libro
-                token = strtok(NULL, ";"); // Ignoramos el título
-                token = strtok(NULL, ";"); // Ignoramos el autor
-                token = strtok(NULL, ";"); // Ignoramos la fecha de préstamo
-                token = strtok(NULL, ";"); // Ignoramos la fecha de devolución
-                int estado = atoi(strtok(NULL, ";")); // Estado (0: prestado, 1: devuelto)
+    char linea[256];
+    while (fgets(linea, sizeof(linea), archivo_historial)) {
+        char copia[256];
+        strcpy(copia, linea);
 
-                if (usuario_id == id_usuario && strcmp(libro_isbn, isbn) == 0 && estado == 0) {
-                    // Si encontramos el préstamo, modificamos solo el estado
-                    encontrado = 1;
-                    posicion = ftell(archivo_historial) - strlen(linea); // Guardamos la posición de la línea
-                    break;
-                }
-            }
+        char* token = strtok(copia, ";");
+        if (token == NULL) continue;
+        int usuario_id = atoi(token);
 
-            if (encontrado) {
-                // Reposicionamos el archivo al inicio de la línea encontrada
-                fseek(archivo_historial, posicion, SEEK_SET);
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        char libro_isbn[20];
+        strcpy(libro_isbn, token);
 
-                // Actualizamos el estado a "devuelto" (1)
-                char fecha_prestamo[11], fecha_devolucion[11];
-                obtener_fecha_actual(fecha_prestamo, fecha_devolucion);
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        char titulo[100];
+        strcpy(titulo, token);
 
-                // Reescribimos solo el estado en el archivo
-                fprintf(archivo_historial, "%d;%s;%s;%s;%s;%s;1\n", id_usuario, isbn, libros[i].titulo, libros[i].autor, fecha_prestamo, fecha_devolucion);
-                printf("Libro devuelto exitosamente: %s\n", libros[i].titulo);
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        char autor[100];
+        strcpy(autor, token);
 
-                // Actualizamos la cantidad de copias disponibles en libros.csv
-                libros[i].copias++;
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        char fecha_prestamo[11];
+        strcpy(fecha_prestamo, token);
 
-                // Abrimos libros.csv para escribir la cantidad actualizada de copias
-                FILE* archivo_libros = fopen("libros.csv", "w");
-                if (archivo_libros == NULL) {
-                    printf("Error al abrir el archivo de libros\n");
-                    fclose(archivo_historial);
-                    free(libros);
-                    return;
-                }
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        char fecha_devolucion[11];
+        strcpy(fecha_devolucion, token);
 
-                for (int j = 0; j < num_libros; j++) {
-                    fprintf(archivo_libros, "%s;%s;%s;%d;%d;%d\n", libros[j].isbn, libros[j].titulo, libros[j].autor,
-                            libros[j].anyo_publicacion, libros[j].disponible, libros[j].copias);
-                }
+        token = strtok(NULL, ";");
+        if (token == NULL) continue;
+        int estado = atoi(token);
 
-                fclose(archivo_libros);
-                fclose(archivo_historial);
-                free(libros);
-                return;
-            }
-
-            fclose(archivo_historial);
-            printf("No se encontró el préstamo para este libro.\n");
-            free(libros);
-            return;
+        if (usuario_id == id_usuario && strcmp(libro_isbn, isbn) == 0 && estado == 0) {
+            encontrado = 1;
+            // Cambiamos solo el estado a 1
+            fprintf(archivo_temp, "%d;%s;%s;%s;%s;%s;1\n", usuario_id, libro_isbn, titulo, autor, fecha_prestamo, fecha_devolucion);
+        } else {
+            fprintf(archivo_temp, "%s", linea);
         }
     }
 
-    printf("No se pudo devolver el libro, no se encontró el libro con ISBN: %s\n", isbn);
+    fclose(archivo_historial);
+    fclose(archivo_temp);
+
+    if (encontrado) {
+        // Sustituimos el archivo original por el temporal
+        remove("historial.csv");
+        rename("historial_temp.csv", "historial.csv");
+        printf("Libro devuelto exitosamente.\n");
+    } else {
+        remove("historial_temp.csv");
+        printf("No se encontró el préstamo para este libro.\n");
+    }
+
     free(libros);
 }
+
+
+
 
 
 
