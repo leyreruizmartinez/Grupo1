@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "registro.h"
+#include <sqlite3.h>
+#define DB_NAME "libros.db"
 #include "bd.h"
 
 int main(void) {
-    inicializarBaseDeDatos();
+    sqlite3* db = NULL; 
+    if (sqlite3_open(DB_NAME, &db)) {
+        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return 1;
+    }
+    inicializarBaseDeDatos(db);
     inicializarCSV();
     int opcion;
     do {
@@ -41,5 +48,13 @@ int main(void) {
                 printf("\nOpción invalida. Intente de nuevo.\n");
         }
     } while (opcion != 4);
+
+    cargarLibrosDesdeCSV(db, "libros.csv");
+    cargarUsuariosDesdeCSV(db, "usuarios.csv");
+    cargarHistorialDesdeCSV(db, "historial.csv");
+    cargarPrestamosDesdeCSV(db, "prestamos.csv");
+    
+
+    sqlite3_close(db);
     return 0;
 }

@@ -13,7 +13,8 @@
 
 // Función para procesar una línea del CSV
 void procesarLineaBD(char* linea, Libro* libro) {
-    sscanf(linea, "%[^,],%[^,],%d,%d", libro->titulo, libro->autor, libro->anyo_publicacion, libro->disponible, libro->copias);
+    sscanf(linea, "%[^,]%[^,],%[^,],%d,%d,%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->disponible, &libro->copias);
+
 }
 
 // Función para insertar los libros en la base de datos
@@ -68,8 +69,8 @@ void leerFicheroYGuardarEnBD(char* nombre_fichero, sqlite3* db) {
 }
 
 // Función para inicializar la base de datos y crear las tablas necesarias
-void inicializarBaseDeDatos() {
-    sqlite3 *db;
+// Función para inicializar la base de datos y crear las tablas necesarias
+void inicializarBaseDeDatos(sqlite3 *db) {
     char *errMsg = 0;
     int rc = sqlite3_open(DB_NAME, &db);
     if (rc) {
@@ -88,10 +89,27 @@ void inicializarBaseDeDatos() {
                       "CREATE TABLE IF NOT EXISTS Prestamos ("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                       "UsuarioID INTEGER,"
-                      "ISBN TEXT,"
-                      "FechaPrestamo TEXT,"
-                      "FechaDevolucion TEXT,"
-                      "Devuelto INTEGER DEFAULT 0);";
+                      "ISBN TEXT);"
+                      
+                      "CREATE TABLE IF NOT EXISTS usuarios ("
+                      "id INTEGER PRIMARY KEY,"
+                      "nombre TEXT,"
+                      "apellido TEXT,"
+                      "correo TEXT UNIQUE,"
+                      "telefono TEXT,"
+                      "contrasena TEXT,"
+                      "sancionado TEXT);"
+                      
+                      "CREATE TABLE IF NOT EXISTS historial ("
+                      "usuario INTEGER,"
+                      "isbn TEXT,"
+                      "titulo TEXT,"
+                      "autor TEXT,"
+                      "fecha_prestamo TEXT,"
+                      "fecha_devolucion TEXT,"
+                      "estado INTEGER,"
+                      "FOREIGN KEY (usuario) REFERENCES usuarios(id) ON DELETE CASCADE,"
+                      "PRIMARY KEY (usuario, isbn, fecha_prestamo));";
 
     rc = sqlite3_exec(db, sql, 0, 0, &errMsg);
     if (rc != SQLITE_OK) {
@@ -101,6 +119,7 @@ void inicializarBaseDeDatos() {
 
     sqlite3_close(db);
 }
+ 
 
 // Función para pedir un libro y registrar el préstamo
 void pedir_libroBD(int id_usuario, char* isbn) {
@@ -262,4 +281,196 @@ int obtener_historialBD(int id_usuario, Prestamo prestamos[]) {
 
     // Devolver el número de préstamos encontrados
     return contador;
+}
+
+// Función para procesar una línea del CSV de libros
+void procesarLineaLibros(char* linea, Libro* libro) {
+    sscanf(linea, "%[^,],%[^,],%d,%d,%d", libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
+}
+
+// Función para cargar los libros desde el archivo CSV a la base de datos
+void cargarLibrosDesdeCSV(sqlite3* db, const char* nombre_fichero) {
+    FILE* fichero = fopen(nombre_fichero, "r");
+    if (!fichero) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+
+    char linea[MAX_C];
+    Libro libro;
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Copias, Disponible) VALUES (?, ?, ?, ?, ?);";
+    
+    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+    while (fgets(linea, MAX_C, fichero)) {
+        linea[strcspn(linea, "\n")] = 0; // Eliminar salto de línea
+        procesarLineaLibros(linea, &libro);
+
+        sqlite3_bind_text(stmt, 1, libro.titulo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, libro.autor, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 3, libro.anyo_publicacion);
+        sqlite3_bind_int(stmt, 4, libro.copias);
+        sqlite3_bind_int(stmt, 5, libro.disponible);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            printf("Error al insertar libro: %s\n", sqlite3_errmsg(db));
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    fclose(fichero);
+}
+
+// Estructura para el usuario
+typedef struct {
+    int id;
+    char nombre[100];
+    char apellido[100];
+    char correo[100];
+    char telefono[15];
+    char contrasena[100];
+    char sancionado[10];
+} Usuario;
+
+// Función para procesar una línea del CSV de usuarios
+void procesarLineaUsuarios(char* linea, Usuario* usuario) {
+    sscanf(linea, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%s", &usuario->id, usuario->nombre, usuario->apellido, usuario->correo, usuario->telefono, usuario->contrasena, usuario->sancionado);
+}
+
+// Función para cargar los usuarios desde el archivo CSV a la base de datos
+void cargarUsuariosDesdeCSV(sqlite3* db, const char* nombre_fichero) {
+    FILE* fichero = fopen(nombre_fichero, "r");
+    if (!fichero) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+
+    char linea[MAX_C];
+    Usuario usuario;
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT INTO usuarios (id, nombre, apellido, correo, telefono, contrasena, sancionado) VALUES (?, ?, ?, ?, ?, ?, ?);";
+    
+    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+    while (fgets(linea, MAX_C, fichero)) {
+        linea[strcspn(linea, "\n")] = 0; // Eliminar salto de línea
+        procesarLineaUsuarios(linea, &usuario);
+
+        sqlite3_bind_int(stmt, 1, usuario.id);
+        sqlite3_bind_text(stmt, 2, usuario.nombre, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, usuario.apellido, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 4, usuario.correo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 5, usuario.telefono, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 6, usuario.contrasena, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 7, usuario.sancionado, -1, SQLITE_STATIC);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            printf("Error al insertar usuario: %s\n", sqlite3_errmsg(db));
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    fclose(fichero);
+}
+// Estructura para el historial de préstamo
+typedef struct {
+    int usuario;
+    char isbn[14];
+    char titulo[100];
+    char autor[100];
+    char fecha_prestamo[11];
+    char fecha_devolucion[11];
+    int estado;
+} Historial;
+
+// Función para procesar una línea del CSV de historial
+void procesarLineaHistorial(char* linea, Historial* historial) {
+    sscanf(linea, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d", &historial->usuario, historial->isbn, historial->titulo, historial->autor, historial->fecha_prestamo, historial->fecha_devolucion, &historial->estado);
+}
+
+// Función para cargar el historial desde el archivo CSV a la base de datos
+void cargarHistorialDesdeCSV(sqlite3* db, const char* nombre_fichero) {
+    FILE* fichero = fopen(nombre_fichero, "r");
+    if (!fichero) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+
+    char linea[MAX_C];
+    Historial historial;
+    sqlite3_stmt* stmt;
+    const char* sql = "INSERT INTO historial (usuario, isbn, titulo, autor, fecha_prestamo, fecha_devolucion, estado) VALUES (?, ?, ?, ?, ?, ?, ?);";
+    
+    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+
+    while (fgets(linea, MAX_C, fichero)) {
+        linea[strcspn(linea, "\n")] = 0; // Eliminar salto de línea
+        procesarLineaHistorial(linea, &historial);
+
+        sqlite3_bind_int(stmt, 1, historial.usuario);
+        sqlite3_bind_text(stmt, 2, historial.isbn, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, historial.titulo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 4, historial.autor, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 5, historial.fecha_prestamo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 6, historial.fecha_devolucion, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 7, historial.estado);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            printf("Error al insertar historial: %s\n", sqlite3_errmsg(db));
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    fclose(fichero);
+}
+void cargarPrestamosDesdeCSV(sqlite3 *db, const char *archivo) {
+    FILE *file = fopen(archivo, "r");
+    if (file == NULL) {
+        printf("No se pudo abrir el archivo CSV: %s\n", archivo);
+        return;
+    }
+
+    char linea[256];  // Buffer para leer una línea del archivo CSV
+    char *usuario_str, *isbn_str;
+    int usuario;
+    char isbn[14];  // ISBN es de longitud 13, más el '\0'
+
+    // Leer línea por línea del archivo CSV
+    while (fgets(linea, sizeof(linea), file)) {
+        // Eliminar el salto de línea al final de cada línea
+        linea[strcspn(linea, "\n")] = 0;
+
+        // Dividir la línea en dos partes: usuario y isbn
+        usuario_str = strtok(linea, ";");
+        isbn_str = strtok(NULL, ";");
+
+        if (usuario_str && isbn_str) {
+            usuario = atoi(usuario_str);  // Convertir el id de usuario a entero
+            strncpy(isbn, isbn_str, sizeof(isbn) - 1);  // Copiar el ISBN
+            isbn[sizeof(isbn) - 1] = '\0';  // Asegurarse de que ISBN termine con '\0'
+
+            // Insertar los datos en la base de datos
+            char sql[256];
+            snprintf(sql, sizeof(sql),
+                     "INSERT INTO Prestamos (UsuarioID, ISBN) "
+                     "VALUES (%d, '%s');",  // Insertar solo el UsuarioID y el ISBN
+                     usuario, isbn);
+
+            char *errMsg = NULL;
+            int rc = sqlite3_exec(db, sql, 0, 0, &errMsg);
+            if (rc != SQLITE_OK) {
+                printf("Error al insertar en la base de datos: %s\n", errMsg);
+                sqlite3_free(errMsg);
+            }
+        }
+    }
+
+    fclose(file);
 }

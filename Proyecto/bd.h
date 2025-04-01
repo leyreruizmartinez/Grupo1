@@ -3,6 +3,8 @@
 
 #include "libro.h"
 #include "prestamo.h"
+#include <sqlite3.h>
+
 
 #define MAX_LIBROS 100
 
@@ -16,7 +18,7 @@ int buscar_libro(Libro libros[], int total_libros, char *isbn);
 int obtener_historialBD(int id_usuario, Prestamo prestamos[]);
 
 // Funciones para la base de datos
-void inicializarBaseDeDatos();
+void inicializarBaseDeDatos(sqlite3 *db);
 void importarDesdeCSV(const char *filename);
 
 // Función para registrar un préstamo
@@ -27,6 +29,10 @@ int mostrar_historialBD(int id_usuario, Prestamo prestamos[]);
 
 Libro* leerFicheroLibros(const char *nombre_fichero, int *num_libros);
 Libro* cargarLibrosDesdeBD(const char* db_nombre, int* num_libros);
+void cargarHistorialDesdeCSV(sqlite3* db, const char* nombre_fichero);
+void cargarUsuariosDesdeCSV(sqlite3* db, const char* nombre_fichero);
+void cargarLibrosDesdeCSV(sqlite3* db, const char* nombre_fichero);
+void cargarPrestamosDesdeCSV(sqlite3 *db, const char *archivo);
 
 
 #endif

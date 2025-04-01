@@ -5,7 +5,7 @@
 #include "bd.h"
 #include "prestamo.h"
 
-#define MAX_LINEA 256
+#define MAX_LINEA 1024
 
 int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
     FILE *archivo = fopen("historial.csv", "r");
@@ -22,7 +22,8 @@ int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
         Prestamo p;
         int id;
         
-        int result = sscanf(linea, "%d;%255[^;];%255[^;];%255[^;];%10[^;];%10[^;];%d", &id, p.isbn, p.titulo, p.autor, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
+        int result = sscanf(linea, "%d;%14[^;];%100[^;];%100[^;];%11[^;];%11[^;];%d",
+            &id, p.isbn, p.titulo, p.autor, p.fecha_prestamo, p.fecha_devolucion, &p.estado);
 
         if (result == 7) {
             if (id == id_usuario) {
