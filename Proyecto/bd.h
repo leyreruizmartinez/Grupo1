@@ -11,5 +11,7 @@ int actualizar_libros(Libro libros[], int total_libros);
 void listar_libros(Libro libros[], int total_libros);
 int buscar_libro(Libro libros[], int total_libros, char *isbn);
 int obtener_historial(int id_usuario, Prestamo prestamos[]);
+void inicializarBaseDeDatos();
+void importarDesdeCSV(const char *filename);
 
 #endif

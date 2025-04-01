@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sqlite3.h>
 #include "bd.h"
 #include "libro.h"
 #include "prestamo.h"
@@ -83,3 +84,78 @@ int obtener_historial(int id_usuario, Prestamo prestamos[]) {
     }
     return 5;
 }
+
+#define DB_NAME "usuarios.db"
+#define FILENAME "usuarios.csv"
+
+// Función para inicializar la base de datos y crear la tabla si no existe
+void inicializarBaseDeDatos() {
+    sqlite3 *db;
+    char *errMsg = 0;
+    int rc = sqlite3_open(DB_NAME, &db);
+    if (rc) {
+        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+
+    const char *sql = "CREATE TABLE IF NOT EXISTS usuarios ("
+                      "id INTEGER PRIMARY KEY,"
+                      "nombre TEXT,"
+                      "apellido TEXT,"
+                      "correo TEXT UNIQUE,"
+                      "telefono TEXT,"
+                      "contrasena TEXT,"
+                      "sancionado TEXT)";
+
+    rc = sqlite3_exec(db, sql, 0, 0, &errMsg);
+    if (rc != SQLITE_OK) {
+        printf("Error al crear la tabla: %s\n", errMsg);
+        sqlite3_free(errMsg);
+    }
+
+    sqlite3_close(db);
+}
+
+// Función para importar usuarios desde un archivo CSV a la base de datos
+void importarDesdeCSV(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        printf("Error al abrir el archivo CSV.\n");
+        return;
+    }
+
+    sqlite3 *db;
+    sqlite3_open(DB_NAME, &db);
+
+    char buffer[256];
+    int firstLine = 1;
+    while (fgets(buffer, sizeof(buffer), file)) {
+        if (firstLine) { // Saltar la primera línea (encabezado)
+            firstLine = 0;
+            continue;
+        }
+        
+        int id;
+        char nombre[50], apellido[50], correo[100], telefono[20], contrasena[50], sancionado[10];
+        sscanf(buffer, "%d,%49[^,],%49[^,],%99[^,],%19[^,],%49[^,],%9[^\n]",  &id, nombre, apellido, correo, telefono, contrasena, sancionado);
+     
+        char sql[512];
+        snprintf(sql, sizeof(sql), 
+                 "INSERT OR IGNORE INTO usuarios (id, nombre, apellido, correo, telefono, contrasena, sancionado) "
+                 "VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s');", 
+                 id, nombre, apellido, correo, telefono, contrasena, sancionado);
+        
+
+        char *errMsg = 0;
+        int rc = sqlite3_exec(db, sql, 0, 0, &errMsg);
+        if (rc != SQLITE_OK) {
+            printf("Error al insertar usuario: %s\n", errMsg);
+            sqlite3_free(errMsg);
+        }
+    }
+    
+    fclose(file);
+    sqlite3_close(db);
+    printf("\n📝 Datos importados con éxito desde %s\n", filename);
+}
+
