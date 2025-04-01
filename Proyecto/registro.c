@@ -145,7 +145,7 @@ void iniciarSesion() {
             encontrado = 1;
             printf("\n✅ -> Inicio de sesión exitoso. Bienvenido, %s %s!\n", user.nombre, user.apellido);
             menuPrincipal(user.id);
-            if (user.sancionado == "Si") {
+            if (user.sancionado == 1) {
                 printf("⚠️ Advertencia: Su cuenta está sancionada.\n");
             }
             break;
