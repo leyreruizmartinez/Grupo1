@@ -8,12 +8,12 @@ int main(void) {
     inicializarCSV();
     int opcion;
     do {
-        printf("\n------ 📖 PÁGINA DE REGISTRO E INICIO DE SESIÓN 📖 -------\n");
+        printf("\n------ PAGINA DE REGISTRO E INICIO DE SESION -------\n");
         printf("\t1. Registrar usuario\n");
         printf("\t2. Mostrar usuarios\n");
-        printf("\t3. Iniciar sesión\n");
+        printf("\t3. Iniciar sesion\n");
         printf("\t4. Salir\n");
-        printf("\nSeleccione una opción: ");
+        printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
         getchar();
 
@@ -29,15 +29,15 @@ int main(void) {
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 3:
-                printf("Inicio de sesión\n");
+                printf("Inicio de sesion\n");
                 iniciarSesion();
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 4:
-                printf("\nSaliendo... 👋\n");
+                printf("\nSaliendo...\n");
                 break;
             default:
-                printf("\nOpción inválida. Intente de nuevo.\n");
+                printf("\nOpción invalida. Intente de nuevo.\n");
         }
     } while (opcion != 4);
     return 0;
