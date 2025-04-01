@@ -1,22 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sqlite3.h>
+#include "bd.h"  // Asegúrate de incluir el archivo de funciones de base de datos
 #include "libro.h"
-#include "historial.h"
-#include "navegacion.h"
-#include "prestamo.h"
-#include "bd.h"
 
-void menuPrincipal(int id_usuario) {
+int menuPrincipal(int id_Usuario) {
+    sqlite3 *db;
+    int opcion;
+    int id_usuario =1; // Asumiendo que el ID de usuario es conocido, lo puedes cambiar dependiendo de cómo lo manejes
 
-    int total_libros;
-    int num_libros;
-    Libro* libros = leerFicheroLibros("libros.csv", &num_libros);
-    if (libros == NULL) {
-        return;
+    // Abrir la base de datos
+    if (sqlite3_open("biblioteca.db", &db) != SQLITE_OK) {
+        printf("No se pudo abrir la base de datos\n");
+        return 1;
     }
 
+    // Cargar los libros desde la base de datos
+    Libro* libros = NULL;
+    int num_libros = 0;
 
+    // Llamar a la función para cargar los libros desde la base de datos
+    libros = cargarLibrosDesdeBD("biblioteca.db", &num_libros);
 
     // MENU PRINCIPAL
     char str[10];
@@ -29,7 +34,6 @@ void menuPrincipal(int id_usuario) {
                "5. Devolver un libro\n"
                "6. Volver atras\n");
         printf("Ingrese una opcion: ");
-
         fgets(str, sizeof(str), stdin);
         str[strcspn(str, "\n")] = '\0';
 
@@ -116,23 +120,17 @@ void menuPrincipal(int id_usuario) {
         // ################### HISTORIAL DE PRESTAMOS #####################
         } else if (str[0] == '3') {
             Prestamo prestamos[100];
-            mostrar_historial(id_usuario, prestamos);
-            if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("Advertencia: Tiene prestamos vencidos. No puede solicitar mas libros.\n");
-            }
+            mostrar_historialBD(id_usuario, prestamos);
 
         // ################### PEDIR UN LIBRO #####################
         } else if (str[0] == '4') {
-            if (tiene_prestamos_atrasados(id_usuario)) {
-                printf("No puede solicitar mas libros hasta devolver los atrasados.\n");
-            } else {
-                printf("Ingrese el ISBN del libro que desea pedir: ");
-                char isbn[14];
-                fgets(isbn, sizeof(isbn), stdin);
-                isbn[strcspn(isbn, "\n")] = '\0'; 
+            printf("Ingrese el ISBN del libro que desea pedir: ");
+            char isbn[14];
+            fgets(isbn, sizeof(isbn), stdin);
+            isbn[strcspn(isbn, "\n")] = '\0'; 
                 
-                pedir_libro(id_usuario, isbn);
-            }
+            pedir_libro(id_usuario, isbn);  // Esta función actualizaría la base de datos
+            
 
         // ################### DEVOLVER UN LIBRO #####################
         } else if (str[0] == '5') {
@@ -141,7 +139,7 @@ void menuPrincipal(int id_usuario) {
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
-            devolver_libro(id_usuario, isbn);
+            devolver_libro(id_usuario, isbn);  // Esta función actualizaría la base de datos
 
         // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
@@ -153,6 +151,11 @@ void menuPrincipal(int id_usuario) {
     free(libros);
     libros = NULL;
 
+    // Cerramos la base de datos
+    sqlite3_close(db);
+
     printf("\nPresione Enter para salir...\n");
     getchar();
+
+    return 0;
 }

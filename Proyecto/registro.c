@@ -145,15 +145,9 @@ void iniciarSesion() {
             encontrado = 1;
             printf("\nInicio de sesion exitoso. Bienvenido, %s %s!\n", user.nombre, user.apellido);
             menuPrincipal(user.id);
-<<<<<<< HEAD
-            if (user.sancionado == 1) {
-                printf("⚠️ Advertencia: Su cuenta está sancionada.\n");
-            }
-=======
             if (user.sancionado == '1') {
                 printf("Advertencia: Su cuenta esta sancionada.\n");
             }         
->>>>>>> aad646a7ec17df139c548bcdc78dff4e023a9993
             break;
         }
     }
