@@ -19,7 +19,7 @@ void procesarLineaBD(char* linea, Libro* libro) {
 // Función para insertar los libros en la base de datos
 void insertarEnBD(sqlite3* db, Libro* libros, int num_libros) {
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Disponible, Copias) VALUES (?, ?, ?, ?);";
+    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Disponible, Copias) VALUES (?, ?, ?, ?, ?);";
     
     sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     
@@ -54,7 +54,7 @@ void leerFicheroYGuardarEnBD(char* nombre_fichero, sqlite3* db) {
 
     while (fgets(linea, MAX_C, fichero)) {
         linea[strcspn(linea, "\n")] = 0;  // Eliminar salto de línea
-        procesarLinea(linea, &array_libros[index++]);
+        procesarLineaBD(linea, &array_libros[index++]);
         
         if (index >= capacidad) {
             capacidad += 20;
@@ -83,7 +83,8 @@ void inicializarBaseDeDatos() {
                       "Autor TEXT,"
                       "Anio INTEGER,"
                       "Copias INTEGER,"
-                      "Disponible INTEGER,"
+                      "Disponible INTEGER);"
+                      
                       "CREATE TABLE IF NOT EXISTS Prestamos ("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                       "UsuarioID INTEGER,"
@@ -109,7 +110,7 @@ void pedir_libroBD(int id_usuario, char* isbn) {
     sqlite3_stmt *stmt;
     int copias = 0;
 
-    snprintf(sql, sizeof(sql), "SELECT Copias FROM LibrosBd WHERE ID = '%s';", isbn);
+    snprintf(sql, sizeof(sql), "SELECT Copias FROM LibrosBd WHERE ISBN = '%s';", isbn);
     sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -118,7 +119,7 @@ void pedir_libroBD(int id_usuario, char* isbn) {
     sqlite3_finalize(stmt);
 
     if (copias > 0) {
-        snprintf(sql, sizeof(sql), "UPDATE LibrosBd SET Copias = Copias - 1 WHERE ID = '%s';", isbn);
+        snprintf(sql, sizeof(sql), "UPDATE LibrosBd SET Copias = Copias - 1 WHERE ISBN = '%s';", isbn);
         sqlite3_exec(db, sql, 0, 0, 0);
 
         snprintf(sql, sizeof(sql), "INSERT INTO Prestamos (UsuarioID, ISBN, FechaPrestamo, FechaDevolucion, Devuelto) "
@@ -155,50 +156,6 @@ void mostrar_historialBD(int id_usuario) {
     sqlite3_close(db);
 }
 
-
-// Función para obtener el historial de préstamos de un usuario
-int obtener_historialBD(int id_usuario, Prestamo prestamos[]) {
-    sqlite3 *db;
-    sqlite3_stmt *stmt;
-    char sql[256];
-    int contador = 0;
-
-    // Abrir la base de datos
-    if (sqlite3_open(DB_NAME, &db)) {
-        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
-        return -1;
-    }
-
-    // Consulta para obtener el historial de préstamos del usuario
-    snprintf(sql, sizeof(sql), "SELECT ISBN, Titulo, Autor, FechaPrestamo, FechaDevolucion, Devuelto FROM Prestamos WHERE UsuarioID = %d;", id_usuario);
-
-    // Preparar la consulta
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return -1;
-    }
-
-    // Ejecutar la consulta y almacenar los resultados en el arreglo de prestamos
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        // Asignar los valores recuperados de la base de datos a la estructura Prestamo
-        snprintf(prestamos[contador].isbn, sizeof(prestamos[contador].isbn), "%s", sqlite3_column_text(stmt, 0));
-        snprintf(prestamos[contador].titulo, sizeof(prestamos[contador].titulo), "%s", sqlite3_column_text(stmt, 1));
-        snprintf(prestamos[contador].autor, sizeof(prestamos[contador].autor), "%s", sqlite3_column_text(stmt, 2));
-        snprintf(prestamos[contador].fecha_prestamo, sizeof(prestamos[contador].fecha_prestamo), "%s", sqlite3_column_text(stmt, 3));
-        snprintf(prestamos[contador].fecha_devolucion, sizeof(prestamos[contador].fecha_devolucion), "%s", sqlite3_column_text(stmt, 4));
-        prestamos[contador].estado = sqlite3_column_int(stmt, 5);
-
-        contador++;
-    }
-
-    // Finalizar la sentencia y cerrar la base de datos
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-
-    // Devolver el número de préstamos encontrados
-    return contador;
-}
 // Función para cargar los libros desde la base de datos
 Libro* cargarLibrosDesdeBD(const char* db_nombre, int* num_libros) {
     sqlite3 *db;
@@ -213,7 +170,7 @@ Libro* cargarLibrosDesdeBD(const char* db_nombre, int* num_libros) {
     }
 
     // Consulta SQL para obtener todos los libros
-    const char *sql = "SELECT titulo, autor, isbn, disponible FROM libros";
+    const char *sql = "SELECT Titulo, Autor, ISBN, Disponible FROM LibrosBd";
     
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, 0);
     if (rc != SQLITE_OK) {
@@ -262,4 +219,47 @@ Libro* cargarLibrosDesdeBD(const char* db_nombre, int* num_libros) {
     sqlite3_close(db);
 
     return libros;  // Devolver el arreglo de libros
+}
+
+int obtener_historialBD(int id_usuario, Prestamo prestamos[]) {
+    sqlite3 *db;
+    sqlite3_stmt *stmt;
+    char sql[256];
+    int contador = 0;
+
+    // Abrir la base de datos
+    if (sqlite3_open("libros.db", &db)) {
+        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+
+    // Consulta SQL para obtener el historial de préstamos del usuario
+    snprintf(sql, sizeof(sql), "SELECT ISBN, Titulo, Autor, FechaPrestamo, FechaDevolucion, Devuelto FROM Prestamos WHERE UsuarioID = %d;", id_usuario);
+
+    // Preparar la consulta
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return -1;
+    }
+
+    // Ejecutar la consulta y almacenar los resultados en el arreglo de prestamos
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        // Asignar los valores recuperados de la base de datos a la estructura Prestamo
+        snprintf(prestamos[contador].isbn, sizeof(prestamos[contador].isbn), "%s", sqlite3_column_text(stmt, 0));
+        snprintf(prestamos[contador].titulo, sizeof(prestamos[contador].titulo), "%s", sqlite3_column_text(stmt, 1));
+        snprintf(prestamos[contador].autor, sizeof(prestamos[contador].autor), "%s", sqlite3_column_text(stmt, 2));
+        snprintf(prestamos[contador].fecha_prestamo, sizeof(prestamos[contador].fecha_prestamo), "%s", sqlite3_column_text(stmt, 3));
+        snprintf(prestamos[contador].fecha_devolucion, sizeof(prestamos[contador].fecha_devolucion), "%s", sqlite3_column_text(stmt, 4));
+        prestamos[contador].estado = sqlite3_column_int(stmt, 5);
+
+        contador++;
+    }
+
+    // Finalizar la sentencia y cerrar la base de datos
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    // Devolver el número de préstamos encontrados
+    return contador;
 }

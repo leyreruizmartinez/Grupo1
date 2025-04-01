@@ -50,7 +50,7 @@ int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
 
 int tiene_prestamos_atrasados(int id_usuario) {
     Prestamo prestamos[50];
-    int total = obtener_historialBD(id_usuario, prestamos);
+    int total = mostrar_historialBD(id_usuario, prestamos);
 
     for (int i = 0; i < total; i++) {
         if (prestamos[i].estado == 2) {

@@ -5,6 +5,7 @@
 #include "bd.h"
 
 int main(void) {
+    inicializarBaseDeDatos();
     inicializarCSV();
     int opcion;
     do {
