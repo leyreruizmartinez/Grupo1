@@ -27,9 +27,7 @@ void menuPrincipal(int id_usuario) {
                "3. Ver historial de prestamos\n"
                "4. Pedir un libro en prestamo\n"
                "5. Devolver un libro\n"
-               "6. Volver atras\n"
-               "7. Volver al menu principal\n"
-               "8. Salir\n");
+               "6. Volver atras\n");
         printf("Ingrese una opcion: ");
 
         fgets(str, sizeof(str), stdin);
@@ -147,13 +145,8 @@ void menuPrincipal(int id_usuario) {
 
         // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
-            volver_atras();
-        } else if (str[0] == '7') {
-            volver_menu();
-        } else if (str[0] == '8') {
             break;
-        }
-
+        } 
     } while (1);
 
     // Liberamos memoria

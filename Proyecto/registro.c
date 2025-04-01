@@ -17,7 +17,7 @@ void inicializarCSV() {
         if (file) {
             fclose(file);
         } else {
-            printf("❌ -> Error al crear el archivo CSV\n");
+            printf("Error al crear el archivo CSV\n");
         }
     } else {
         fclose(file);
@@ -48,7 +48,7 @@ int generarID() {
 void registrarUsuario() {
     FILE *file = fopen(FILENAME, "a");
     if (!file) {
-        printf("❌ -> Error al abrir el archivo CSV\n");
+        printf("Error al abrir el archivo CSV\n");
         return;
     }
 
@@ -68,17 +68,17 @@ void registrarUsuario() {
     fgets(user.correo, sizeof(user.correo), stdin);
     user.correo[strcspn(user.correo, "\n")] = 0;
 
-    printf("\t- Ingrese teléfono: ");
+    printf("\t- Ingrese telefono: ");
     fgets(user.telefono, sizeof(user.telefono), stdin);
     user.telefono[strcspn(user.telefono, "\n")] = 0;
 
-    printf("\t- Ingrese contraseña: ");
+    printf("\t- Ingrese contrasena: ");
     fgets(user.contrasena, sizeof(user.contrasena), stdin);
     user.contrasena[strcspn(user.contrasena, "\n")] = 0;
 
     fprintf(file, "%d,%s,%s,%s,%s,%s,%d\n", user.id, user.nombre, user.apellido, user.correo, user.telefono, user.contrasena, user.sancionado);
     fclose(file);
-    printf("✅ Usuario registrado: %s %s\n", user.nombre, user.apellido);
+    printf("Usuario registrado: %s %s\n", user.nombre, user.apellido);
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,19 +87,19 @@ void registrarUsuario() {
 void mostrarUsuarios() {
     FILE *file = fopen(FILENAME, "r");
     if (!file) {
-        printf("❌ -> Error al abrir el archivo CSV.\n");
+        printf("Error al abrir el archivo CSV.\n");
         return;
     }
 
     char buffer[256];
-    printf("\n📋 Lista de Usuarios:\n");
+    printf("\nLista de Usuarios:\n");
 
     while (fgets(buffer, sizeof(buffer), file)) {
         Usuario user;
         sscanf(buffer, "%d,%49[^,],%49[^,],%99[^,],%19[^,],%49[^,],%s",
                &user.id, user.nombre, user.apellido, user.correo, user.telefono, user.contrasena, &user.sancionado);
 
-        printf("\tID: %d | Nombre: %s %s | Correo: %s | Teléfono: %s | Sancionado: %s\n",
+        printf("\tID: %d | Nombre: %s %s | Correo: %s | Telefono: %s | Sancionado: %s\n",
                user.id, user.nombre, user.apellido, user.correo, user.telefono, user.sancionado ? "No" : "Si");
     }
 
@@ -112,7 +112,7 @@ void mostrarUsuarios() {
 void iniciarSesion() {
     FILE *file = fopen(FILENAME, "r");
     if (!file) {
-        printf("❌ -> Error al abrir el archivo CSV.\n");
+        printf("Error al abrir el archivo CSV.\n");
         return;
     }
 
@@ -124,7 +124,7 @@ void iniciarSesion() {
     fgets(correo, sizeof(correo), stdin);
     correo[strcspn(correo, "\n")] = 0;
 
-    printf("\t- Ingrese su contraseña: ");
+    printf("\t- Ingrese su contrasena: ");
     fgets(contrasena, sizeof(contrasena), stdin);
     contrasena[strcspn(contrasena, "\n")] = 0;
 
@@ -143,17 +143,23 @@ void iniciarSesion() {
         // Comparar credenciales
         if (strcmp(correo, user.correo) == 0 && strcmp(contrasena, user.contrasena) == 0) {
             encontrado = 1;
-            printf("\n✅ -> Inicio de sesión exitoso. Bienvenido, %s %s!\n", user.nombre, user.apellido);
+            printf("\nInicio de sesion exitoso. Bienvenido, %s %s!\n", user.nombre, user.apellido);
             menuPrincipal(user.id);
+<<<<<<< HEAD
             if (user.sancionado == 1) {
                 printf("⚠️ Advertencia: Su cuenta está sancionada.\n");
             }
+=======
+            if (user.sancionado == '1') {
+                printf("Advertencia: Su cuenta esta sancionada.\n");
+            }         
+>>>>>>> aad646a7ec17df139c548bcdc78dff4e023a9993
             break;
         }
     }
 
     if (!encontrado) {
-        printf("\n⛔️ -> Correo o contraseña incorrectos.\n");
+        printf("\nCorreo o contrasena incorrectos.\n");
     }
 
     fclose(file);
