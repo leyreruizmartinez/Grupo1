@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sqlite3.h>
+//#include <sqlite3.h>
 #include "bd.h"
 #include "libro.h"
 #include "prestamo.h"
@@ -88,6 +88,7 @@ int obtener_historial(int id_usuario, Prestamo prestamos[]) {
 #define DB_NAME "usuarios.db"
 #define FILENAME "usuarios.csv"
 
+/*
 // Función para inicializar la base de datos y crear la tabla si no existe
 void inicializarBaseDeDatos() {
     sqlite3 *db;
@@ -158,4 +159,5 @@ void importarDesdeCSV(const char *filename) {
     sqlite3_close(db);
     printf("\n📝 Datos importados con éxito desde %s\n", filename);
 }
+*/
 
