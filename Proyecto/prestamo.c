@@ -108,6 +108,27 @@ void registrar_prestamo(int id_usuario, char* isbn) {
     printf("Registrando prestamo para el usuario %d con ISBN %s\n", id_usuario, isbn);
 }
 
+
+//funcion para comparar la fecha actual con la de la devolucion, para saber si hace
+//falta una penalizacion o no
+int calcular_diferencia_dias(char* fecha1, char* fecha2) {
+    struct tm tm1 = {0}, tm2 = {0};
+    time_t t1, t2;
+
+    sscanf(fecha1, "%4d-%2d-%2d", &tm1.tm_year, &tm1.tm_mon, &tm1.tm_mday);
+    tm1.tm_year -= 1900; //ajustar anyo y mes para q tm lo entienda
+    tm1.tm_mon -= 1;
+
+    sscanf(fecha2, "%4d-%2d-%2d", &tm2.tm_year, &tm2.tm_mon, &tm2.tm_mday);
+    tm2.tm_year -= 1900; //ajustar otra vez
+    tm2.tm_mon -= 1;
+
+    t1 = mktime(&tm1);
+    t2 = mktime(&tm2);
+
+    return difftime(t2, t1) / (60 * 60 * 24);  //diferencia d dias
+}
+
 void devolver_libro(int id_usuario, char* isbn) {
     int num_libros;
     Libro* libros = leerFicheroLibros("libros.csv", &num_libros);
@@ -168,6 +189,21 @@ void devolver_libro(int id_usuario, char* isbn) {
 
         if (usuario_id == id_usuario && strcmp(libro_isbn, isbn) == 0 && estado == 0) {
             encontrado = 1;
+
+            //para conseguir la fecha actual para compararla con la d la devol.
+            time_t t = time(NULL);
+            struct tm tm = *localtime(&t);
+            char fecha_actual[11];
+            strftime(fecha_actual, 11, "%Y-%m-%d", &tm);
+
+            //calcular la diferencia d dias en si
+            int dias_retraso = calcular_diferencia_dias(fecha_devolucion, fecha_actual);
+
+            //ver si esta atrasado o no
+            if(dias_retraso > 0){
+                printf("el libro esta atrasado por %d dias, se aplicara una penalizacion\n", dias_retraso);
+                
+            }
             fprintf(archivo_temp, "%d;%s;%s;%s;%s;%s;1\n", usuario_id, libro_isbn, titulo, autor, fecha_prestamo, fecha_devolucion);
         } else {
             fprintf(archivo_temp, "%s", linea);
