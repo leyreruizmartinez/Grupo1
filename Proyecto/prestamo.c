@@ -202,9 +202,12 @@ void devolver_libro(int id_usuario, char* isbn) {
             //ver si esta atrasado o no
             if(dias_retraso > 0){
                 printf("el libro esta atrasado por %d dias, se aplicara una penalizacion\n", dias_retraso);
-                
+                estado = 2;
             }
-            fprintf(archivo_temp, "%d;%s;%s;%s;%s;%s;1\n", usuario_id, libro_isbn, titulo, autor, fecha_prestamo, fecha_devolucion);
+            else {
+                estado = 1;
+            }
+            fprintf(archivo_temp, "%d;%s;%s;%s;%s;%s;%i\n", usuario_id, libro_isbn, titulo, autor, fecha_prestamo, fecha_devolucion, estado);
         } else {
             fprintf(archivo_temp, "%s", linea);
         }
