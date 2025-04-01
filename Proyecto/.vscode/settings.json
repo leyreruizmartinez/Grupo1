@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.rmd": "markdown",
+        "libro.h": "c",
+        "sqlite3.h": "c"
+    }
+}

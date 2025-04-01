@@ -2,12 +2,12 @@
 #define LIBRO_H_
 
 typedef struct {
-    char* isbn;              // ISBN del libro
-    char* titulo;            // Título del libro
-    char* autor;             // Autor del libro
-    int anyo_publicacion;    // Año de publicación
-    int disponible;          // Si está disponible (0 = no, 1 = sí)
-    int copias;              // Número de copias disponibles
+    char *isbn;                // ISBN del libro, puntero a cadena de caracteres
+    char *titulo;              // Título del libro, puntero a cadena de caracteres
+    char *autor;               // Autor del libro, puntero a cadena de caracteres
+    int anyo_publicacion;      // Año de publicación
+    int disponible;            // Si está disponible (0 = no, 1 = sí)
+    int copias;                // Número de copias disponibles
 } Libro;
 
 void imprimirLibro(Libro libro);
