@@ -17,11 +17,6 @@ void menuPrincipal(int id_usuario) {
     }
 
 
-    printf("Ingrese su ID de usuario: ");
-    if (scanf("%d", &id_usuario) != 1) {
-        return;
-    }
-    getchar();
 
     // MENU PRINCIPAL
     char str[10];
