@@ -2,25 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
-#include "prestamo.h"
-#include "libro.h"
 
 #define MAX_C 150
 #define DB_NAME "libros.db"
 #define FILENAME "libros.csv"
 
-// Estructura para almacenar la información de un libro
+// Definición de la estructura Libro
+typedef struct {
+    char isbn[14];      // ISBN de 13 caracteres + '\0'
+    char titulo[100];   // Título del libro
+    char autor[100];    // Autor del libro
+    int anyo_publicacion;
+    int copias;
+    int disponible;
+} Libro;
 
 // Función para procesar una línea del CSV
 void procesarLineaBD(char* linea, Libro* libro) {
-    sscanf(linea, "%[^,]%[^,],%[^,],%d,%d,%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->disponible, &libro->copias);
-
+    int result = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
+    if (result != 6) {
+        fprintf(stderr, "Error al procesar la línea: %s\n", linea);
+        return; // Maneja el error de otra manera
+    }
 }
 
 // Función para insertar los libros en la base de datos
 void insertarEnBD(sqlite3* db, Libro* libros, int num_libros) {
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Disponible, Copias) VALUES (?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Copias, Disponible) VALUES (?, ?, ?, ?, ?);";
     
     sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     
@@ -28,8 +37,8 @@ void insertarEnBD(sqlite3* db, Libro* libros, int num_libros) {
         sqlite3_bind_text(stmt, 1, libros[i].titulo, -1, SQLITE_STATIC);
         sqlite3_bind_text(stmt, 2, libros[i].autor, -1, SQLITE_STATIC);
         sqlite3_bind_int(stmt, 3, libros[i].anyo_publicacion);
-        sqlite3_bind_int(stmt, 4, libros[i].disponible);
-        sqlite3_bind_int(stmt, 5, libros[i].copias);
+        sqlite3_bind_int(stmt, 4, libros[i].copias);
+        sqlite3_bind_int(stmt, 5, libros[i].disponible);
         
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             printf("Error al insertar: %s\n", sqlite3_errmsg(db));
@@ -42,7 +51,7 @@ void insertarEnBD(sqlite3* db, Libro* libros, int num_libros) {
 }
 
 // Función para leer el fichero CSV y almacenarlo en la base de datos
-void leerFicheroYGuardarEnBD(char* nombre_fichero, sqlite3* db) {
+void leerFicheroYGuardarEnBD(const char* nombre_fichero, sqlite3* db) {
     FILE* fichero = fopen(nombre_fichero, "r");
     if (!fichero) {
         perror("Error al abrir el fichero");
@@ -69,12 +78,11 @@ void leerFicheroYGuardarEnBD(char* nombre_fichero, sqlite3* db) {
 }
 
 // Función para inicializar la base de datos y crear las tablas necesarias
-// Función para inicializar la base de datos y crear las tablas necesarias
-void inicializarBaseDeDatos(sqlite3 *db) {
+void inicializarBaseDeDatos(sqlite3 **db) {
     char *errMsg = 0;
-    int rc = sqlite3_open(DB_NAME, &db);
+    int rc = sqlite3_open(DB_NAME, db);
     if (rc) {
-        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(*db));
         return;
     }
 
@@ -111,18 +119,15 @@ void inicializarBaseDeDatos(sqlite3 *db) {
                       "FOREIGN KEY (usuario) REFERENCES usuarios(id) ON DELETE CASCADE,"
                       "PRIMARY KEY (usuario, isbn, fecha_prestamo));";
 
-    rc = sqlite3_exec(db, sql, 0, 0, &errMsg);
+    rc = sqlite3_exec(*db, sql, 0, 0, &errMsg);
     if (rc != SQLITE_OK) {
         printf("Error al crear las tablas: %s\n", errMsg);
         sqlite3_free(errMsg);
     }
-
-    sqlite3_close(db);
 }
- 
 
 // Función para pedir un libro y registrar el préstamo
-void pedir_libroBD(int id_usuario, char* isbn) {
+void pedir_libroBD(int id_usuario, const char* isbn) {
     sqlite3 *db;
     sqlite3_open(DB_NAME, &db);
     char sql[512];
@@ -240,52 +245,13 @@ Libro* cargarLibrosDesdeBD(const char* db_nombre, int* num_libros) {
     return libros;  // Devolver el arreglo de libros
 }
 
-int obtener_historialBD(int id_usuario, Prestamo prestamos[]) {
-    sqlite3 *db;
-    sqlite3_stmt *stmt;
-    char sql[256];
-    int contador = 0;
-
-    // Abrir la base de datos
-    if (sqlite3_open("libros.db", &db)) {
-        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
-        return -1;
-    }
-
-    // Consulta SQL para obtener el historial de préstamos del usuario
-    snprintf(sql, sizeof(sql), "SELECT ISBN, Titulo, Autor, FechaPrestamo, FechaDevolucion, Devuelto FROM Prestamos WHERE UsuarioID = %d;", id_usuario);
-
-    // Preparar la consulta
-    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        printf("Error al preparar la consulta: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return -1;
-    }
-
-    // Ejecutar la consulta y almacenar los resultados en el arreglo de prestamos
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
-        // Asignar los valores recuperados de la base de datos a la estructura Prestamo
-        snprintf(prestamos[contador].isbn, sizeof(prestamos[contador].isbn), "%s", sqlite3_column_text(stmt, 0));
-        snprintf(prestamos[contador].titulo, sizeof(prestamos[contador].titulo), "%s", sqlite3_column_text(stmt, 1));
-        snprintf(prestamos[contador].autor, sizeof(prestamos[contador].autor), "%s", sqlite3_column_text(stmt, 2));
-        snprintf(prestamos[contador].fecha_prestamo, sizeof(prestamos[contador].fecha_prestamo), "%s", sqlite3_column_text(stmt, 3));
-        snprintf(prestamos[contador].fecha_devolucion, sizeof(prestamos[contador].fecha_devolucion), "%s", sqlite3_column_text(stmt, 4));
-        prestamos[contador].estado = sqlite3_column_int(stmt, 5);
-
-        contador++;
-    }
-
-    // Finalizar la sentencia y cerrar la base de datos
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-
-    // Devolver el número de préstamos encontrados
-    return contador;
-}
-
 // Función para procesar una línea del CSV de libros
 void procesarLineaLibros(char* linea, Libro* libro) {
-    sscanf(linea, "%[^,],%[^,],%d,%d,%d", libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
+    int result = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
+    if (result != 6) {
+        fprintf(stderr, "Error al procesar la línea: %s\n", linea);
+        return; // Maneja el error de otra manera
+    }
 }
 
 // Función para cargar los libros desde el archivo CSV a la base de datos
@@ -377,6 +343,7 @@ void cargarUsuariosDesdeCSV(sqlite3* db, const char* nombre_fichero) {
     sqlite3_finalize(stmt);
     fclose(fichero);
 }
+
 // Estructura para el historial de préstamo
 typedef struct {
     int usuario;
@@ -430,6 +397,8 @@ void cargarHistorialDesdeCSV(sqlite3* db, const char* nombre_fichero) {
     sqlite3_finalize(stmt);
     fclose(fichero);
 }
+
+// Función para cargar préstamos desde un archivo CSV
 void cargarPrestamosDesdeCSV(sqlite3 *db, const char *archivo) {
     FILE *file = fopen(archivo, "r");
     if (file == NULL) {

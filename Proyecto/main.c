@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "registro.h"
 #include <sqlite3.h>
-#define DB_NAME "libros.db"
+#include "registro.h"
 #include "bd.h"
+
+#define DB_NAME "libros.db"
 
 int main(void) {
     sqlite3* db = NULL; 
+    // Abrir la base de datos
     if (sqlite3_open(DB_NAME, &db)) {
-        printf("Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        fprintf(stderr, "Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return 1;
     }
+
+    // Inicializar la base de datos y cargar datos desde CSV
     inicializarBaseDeDatos(db);
     inicializarCSV();
+
     int opcion;
     do {
         printf("\n------ PAGINA DE REGISTRO E INICIO DE SESION -------\n");
@@ -23,7 +28,7 @@ int main(void) {
         printf("\t4. Salir\n");
         printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
-        getchar();
+        getchar(); // Limpiar el buffer de entrada
 
         printf("\n------------------------------------------------------------------------------------\n");
         switch (opcion) {
@@ -33,6 +38,7 @@ int main(void) {
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 2:
+                printf("Mostrar usuarios\n");
                 mostrarUsuarios();
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
@@ -49,12 +55,13 @@ int main(void) {
         }
     } while (opcion != 4);
 
+    // Cargar datos desde archivos CSV
     cargarLibrosDesdeCSV(db, "libros.csv");
     cargarUsuariosDesdeCSV(db, "usuarios.csv");
     cargarHistorialDesdeCSV(db, "historial.csv");
     cargarPrestamosDesdeCSV(db, "prestamos.csv");
-    
 
+    // Cerrar la base de datos
     sqlite3_close(db);
     return 0;
 }
