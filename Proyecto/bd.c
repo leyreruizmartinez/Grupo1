@@ -77,6 +77,26 @@ void leerFicheroYGuardarEnBD(const char* nombre_fichero, sqlite3* db) {
     free(array_libros);
 }
 
+void eliminarBaseDeDatos() {
+    sqlite3* db;
+    if (sqlite3_open(DB_NAME, &db) == SQLITE_OK) {
+        sqlite3_close(db);
+    }
+
+    // Primero intentamos con unlink
+    if (unlink(DB_NAME) == 0) {
+        printf("Base de datos eliminada con unlink.\n");
+        return;
+    }
+
+    // Si unlink falla, intentamos con remove
+    if (remove(DB_NAME) == 0) {
+        printf("Base de datos eliminada con remove.\n");
+    } else {
+        perror("Error al eliminar la base de datos");
+    }
+}
+
 // Función para inicializar la base de datos y crear las tablas necesarias
 void inicializarBaseDeDatos(sqlite3 **db) {
     char *errMsg = 0;
@@ -355,9 +375,38 @@ typedef struct {
     int estado;
 } Historial;
 
+// Función para validar el formato de la fecha (YYYY-MM-DD)
+int validarFecha(const char* fecha) {
+    if (strlen(fecha) != 10) return 0; // Debe tener 10 caracteres
+    if (fecha[4] != '-' || fecha[7] != '-') return 0; // Debe tener guiones en las posiciones correctas
+
+    // Validar que los componentes de la fecha sean números
+    for (int i = 0; i < 10; i++) {
+        if (i == 4 || i == 7) continue; // Ignorar guiones
+        if (fecha[i] < '0' || fecha[i] > '9') return 0; // Debe ser un dígito
+    }
+
+    return 1; // Fecha válida
+}
+
 // Función para procesar una línea del CSV de historial
 void procesarLineaHistorial(char* linea, Historial* historial) {
-    sscanf(linea, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d", &historial->usuario, historial->isbn, historial->titulo, historial->autor, historial->fecha_prestamo, historial->fecha_devolucion, &historial->estado);
+    sscanf(linea, "%d;%[^;];%[^;];%[^;];%[^;];%[^;];%d", 
+           &historial->usuario, 
+           historial->isbn, 
+           historial->titulo, 
+           historial->autor, 
+           historial->fecha_prestamo, 
+           historial->fecha_devolucion, 
+           &historial->estado);
+
+    // Validar las fechas
+    if (!validarFecha(historial->fecha_prestamo)) {
+        fprintf(stderr, "Fecha de préstamo inválida: %s\n", historial->fecha_prestamo);
+    }
+    if (!validarFecha(historial->fecha_devolucion)) {
+        fprintf(stderr, "Fecha de devolución inválida: %s\n", historial->fecha_devolucion);
+    }
 }
 
 // Función para cargar el historial desde el archivo CSV a la base de datos

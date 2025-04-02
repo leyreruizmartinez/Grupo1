@@ -24,5 +24,6 @@ void devolver_libro(int id_usuario, char* isbn);
 int contar_libros(Libro* libros);
 int buscar_libro_por_isbn(Libro* libros, int total_libros, char* isbn);
 void registrar_prestamo(int id_usuario, char* isbn);
+int contar_prestamos_atrasados(int id_usuario);
 
 #endif

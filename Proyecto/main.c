@@ -15,7 +15,6 @@ int main(void) {
         return 1;
     }
 
-    // Inicializar la base de datos y cargar datos desde CSV
     inicializarBaseDeDatos(db);
     inicializarCSV();
 

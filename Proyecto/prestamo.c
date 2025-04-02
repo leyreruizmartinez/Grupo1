@@ -27,6 +27,13 @@ void obtener_fecha_actual(char* fecha_prestamo, char* fecha_devolucion) {
 }
 
 void pedir_libro(int id_usuario, char* isbn) {
+    // Contar los préstamos atrasados
+    int prestamos_atrasados = contar_prestamos_atrasados(id_usuario);
+    if (prestamos_atrasados > 3) {
+        printf("Estas sancionado. No puedes pedir mas libros hasta que devuelvas los atrasados.\n");
+        return;
+    }
+
     int num_libros;
     Libro* libros = leerFicheroLibros("libros.csv", &num_libros);
 
@@ -66,7 +73,7 @@ void pedir_libro(int id_usuario, char* isbn) {
 
             FILE* archivo_prestamo = fopen("prestamos.csv", "a");
             if (archivo_prestamo == NULL) {
-                printf("Error al abrir el archivo de préstamo\n");
+                printf("Error al abrir el archivo de prestamo\n");
                 free(libros);
                 return;
             }
@@ -83,8 +90,35 @@ void pedir_libro(int id_usuario, char* isbn) {
     free(libros);
 
     if (!encontrado) {
-        printf("No se pudo realizar el préstamo, el libro no está disponible o no existe.\n");
+        printf("No se pudo realizar el prestamo, el libro no esta disponible o no existe.\n");
     }
+}
+
+int contar_prestamos_atrasados(int id_usuario) {
+    FILE* archivo_historial = fopen("historial.csv", "r");
+    if (archivo_historial == NULL) {
+        printf("Error al abrir el archivo de historial\n");
+        return -1;
+    }
+
+    char linea[MAX_LINEA];
+    int contador = 0;
+
+    while (fgets(linea, sizeof(linea), archivo_historial)) {
+        int usuario_id;
+        char libro_isbn[20];
+        int estado;
+
+        // Leer los datos de la línea
+        sscanf(linea, "%d;%[^;];%*[^;];%*[^;];%*[^;];%*[^;];%d", &usuario_id, libro_isbn, &estado);
+
+        if (usuario_id == id_usuario && estado == 2) {
+            contador++;
+        }
+    }
+
+    fclose(archivo_historial);
+    return contador;
 }
 
 int contar_libros(Libro* libros) {
