@@ -9,7 +9,4 @@ typedef struct{
     int sancionado;
 }Usuario;
 
-
-Usuario* leerFicheroLibros(char* nombre_fichero);
-
 #endif

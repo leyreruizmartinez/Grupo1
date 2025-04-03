@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
-#include "bd.h"  // Asegúrate de incluir el archivo de funciones de base de datos
+#include "bd.h"
 #include "libro.h"
 #include "historial.h"
 
 int menuPrincipal(int id_Usuario) {
     sqlite3 *db;
     int opcion;
-    int id_usuario =1; // Asumiendo que el ID de usuario es conocido, lo puedes cambiar dependiendo de cómo lo manejes
+    int id_usuario = 1;
 
     // Abrir la base de datos
     if (sqlite3_open("libros.db", &db) != SQLITE_OK) {
@@ -132,7 +132,7 @@ int menuPrincipal(int id_Usuario) {
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
                 
-            pedir_libro(id_usuario, isbn);  // Esta función actualizaría la base de datos
+            pedir_libro(id_usuario, isbn);
             
 
         // ################### DEVOLVER UN LIBRO #####################
@@ -142,7 +142,7 @@ int menuPrincipal(int id_Usuario) {
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
-            devolver_libro(id_usuario, isbn);  // Esta función actualizaría la base de datos
+            devolver_libro(id_usuario, isbn);
 
         // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {

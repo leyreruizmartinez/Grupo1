@@ -22,7 +22,7 @@ void procesarLineaBD(char* linea, Libro* libro) {
     int result = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
     if (result != 6) {
         fprintf(stderr, "Error al procesar la línea: %s\n", linea);
-        return; // Maneja el error de otra manera
+        return;
     }
 }
 
@@ -270,7 +270,7 @@ void procesarLineaLibros(char* linea, Libro* libro) {
     int result = sscanf(linea, "%[^;];%[^;];%[^;];%d;%d;%d", libro->isbn, libro->titulo, libro->autor, &libro->anyo_publicacion, &libro->copias, &libro->disponible);
     if (result != 6) {
         fprintf(stderr, "Error al procesar la línea: %s\n", linea);
-        return; // Maneja el error de otra manera
+        return;
     }
 }
 
@@ -465,7 +465,7 @@ void cargarPrestamosDesdeCSV(sqlite3 *db, const char *archivo) {
         // Eliminar el salto de línea al final de cada línea
         linea[strcspn(linea, "\n")] = 0;
 
-        // Dividir la línea en dos partes: usuario y isbn
+        // Dividir la línea en dos partes: usuario e isbn
         usuario_str = strtok(linea, ";");
         isbn_str = strtok(NULL, ";");
 
