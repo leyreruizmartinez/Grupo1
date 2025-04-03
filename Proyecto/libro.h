@@ -12,7 +12,6 @@ typedef struct {
 
 void imprimirLibro(Libro libro);
 void procesarLinea(char* linea, Libro* libro);
-Libro* leerFicheroLibros(char* nombre_fichero, int *num_libros);
 
 int contarLibrosTitulo(Libro* libros, int tamanyo, char* titulo);
 Libro* buscarLibroTitulo(Libro* libros, int tamanyo, char* titulo);
