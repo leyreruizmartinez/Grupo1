@@ -1,0 +1,14 @@
+{
+    "terminal.integrated.env.windows": {
+      "PATH": "C:/msys64/mingw64/bin:${env:PATH}"
+    },
+    "files.associations": {
+      "*.ttf": "bat",
+      "*.zip": "bat",
+      "*.rmd": "markdown",
+      "math.h": "c",
+      "prestamo.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+  }
+  

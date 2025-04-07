@@ -1,0 +1,22 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "-I/mingw64/include", // Ruta de los archivos de encabezado de SQLite3
+          "-L/mingw64/lib", // Ruta de las bibliotecas de SQLite3
+          "-lsqlite3", // Vincula la biblioteca SQLite3
+          "*.c",
+          "-o", "proy.exe"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+  
