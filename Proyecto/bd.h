@@ -18,7 +18,6 @@ int buscar_libro(Libro libros[], int total_libros, char *isbn);
 int obtener_historialBD(int id_usuario, Prestamo prestamos[]);
 
 // Funciones para la base de datos
-void eliminarBaseDeDatos();
 void inicializarBaseDeDatos(sqlite3 *db);
 void importarDesdeCSV(const char *filename);
 

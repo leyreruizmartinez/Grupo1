@@ -8,15 +8,33 @@
 #define DB_NAME "libros.db"
 
 int main(void) {
-    sqlite3* db = NULL; 
+    const char *nombreArchivo = DB_NAME;
+    
+    sqlite3* db = NULL;
+    
     // Abrir la base de datos
     if (sqlite3_open(DB_NAME, &db)) {
         fprintf(stderr, "Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
         return 1;
     }
+    
+    sqlite3_close_v2(db);
 
+    // Rehace la base de datos eliminándola
+    if (remove(nombreArchivo) == 0) {
+        printf("Rehaciendo base de datos...\n");
+    } else {
+        printf("No se pudo eliminar.\n");
+    }
+
+    // Inicializar la base de datos y cargar datos desde los CSV
     inicializarBaseDeDatos(db);
     inicializarCSV();
+
+    cargarLibrosDesdeCSV(db, "libros.csv");
+    cargarUsuariosDesdeCSV(db, "usuarios.csv");
+    cargarHistorialDesdeCSV(db, "historial.csv");
+    cargarPrestamosDesdeCSV(db, "prestamos.csv");
 
     int opcion;
     do {
@@ -33,17 +51,17 @@ int main(void) {
         switch (opcion) {
             case 1:
                 printf("Registro\n");
-                registrarUsuario();
+                registrarUsuario(db); // Pasar db a la función
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 2:
                 printf("Mostrar usuarios\n");
-                mostrarUsuarios();
+                mostrarUsuarios(db); // Pasar db a la función
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 3:
                 printf("Inicio de sesion\n");
-                iniciarSesion();
+                iniciarSesion(db); // Pasar db a la función
                 printf("\n------------------------------------------------------------------------------------\n");
                 break;
             case 4:
@@ -53,12 +71,6 @@ int main(void) {
                 printf("\nOpción invalida. Intente de nuevo.\n");
         }
     } while (opcion != 4);
-
-    // Cargar datos desde archivos CSV
-    cargarLibrosDesdeCSV(db, "libros.csv");
-    cargarUsuariosDesdeCSV(db, "usuarios.csv");
-    cargarHistorialDesdeCSV(db, "historial.csv");
-    cargarPrestamosDesdeCSV(db, "prestamos.csv");
 
     // Cerrar la base de datos
     sqlite3_close(db);

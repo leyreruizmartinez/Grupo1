@@ -77,26 +77,6 @@ void leerFicheroYGuardarEnBD(const char* nombre_fichero, sqlite3* db) {
     free(array_libros);
 }
 
-void eliminarBaseDeDatos() {
-    sqlite3* db;
-    if (sqlite3_open(DB_NAME, &db) == SQLITE_OK) {
-        sqlite3_close(db);
-    }
-
-    // Primero intentamos con unlink
-    if (unlink(DB_NAME) == 0) {
-        printf("Base de datos eliminada con unlink.\n");
-        return;
-    }
-
-    // Si unlink falla, intentamos con remove
-    if (remove(DB_NAME) == 0) {
-        printf("Base de datos eliminada con remove.\n");
-    } else {
-        perror("Error al eliminar la base de datos");
-    }
-}
-
 // Función para inicializar la base de datos y crear las tablas necesarias
 void inicializarBaseDeDatos(sqlite3 **db) {
     char *errMsg = 0;
