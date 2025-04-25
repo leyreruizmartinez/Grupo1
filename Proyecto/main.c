@@ -4,37 +4,48 @@
 #include "sqlite3.h"
 #include "registro.h"
 #include "bd.h"
+#include "log.h"
 
 #define DB_NAME "libros.db"
 
 int main(void) {
     const char *nombreArchivo = DB_NAME;
-    
     sqlite3* db = NULL;
-    
-    // Abrir la base de datos
+
     if (sqlite3_open(DB_NAME, &db)) {
         fprintf(stderr, "Error al abrir la base de datos: %s\n", sqlite3_errmsg(db));
+        registrarLog("Error al abrir la base de datos en main.");
         return 1;
     }
-    
+    registrarLog("Base de datos abierta correctamente en main.");
+
     sqlite3_close_v2(db);
 
-    // Rehace la base de datos eliminándola
     if (remove(nombreArchivo) == 0) {
         printf("Rehaciendo base de datos...\n");
+        registrarLog("Base de datos eliminada correctamente.");
     } else {
         printf("No se pudo eliminar.\n");
+        registrarLog("No se pudo eliminar la base de datos.");
     }
 
-    // Inicializar la base de datos y cargar datos desde los CSV
     inicializarBaseDeDatos(db);
+    registrarLog("Base de datos inicializada.");
+
     inicializarCSV();
+    registrarLog("CSV inicializados.");
 
     cargarLibrosDesdeCSV(db, "libros.csv");
+    registrarLog("Libros cargados desde CSV.");
+
     cargarUsuariosDesdeCSV(db, "usuarios.csv");
+    registrarLog("Usuarios cargados desde CSV.");
+
     cargarHistorialDesdeCSV(db, "historial.csv");
+    registrarLog("Historial cargado desde CSV.");
+
     cargarPrestamosDesdeCSV(db, "prestamos.csv");
+    registrarLog("Préstamos cargados desde CSV.");
 
     int opcion;
     do {
@@ -45,34 +56,32 @@ int main(void) {
         printf("\t4. Salir\n");
         printf("\nSeleccione una opcion: ");
         scanf("%d", &opcion);
-        getchar(); // Limpiar el buffer de entrada
+        getchar();
 
         printf("\n------------------------------------------------------------------------------------\n");
         switch (opcion) {
             case 1:
-                printf("Registro\n");
-                registrarUsuario(db); // Pasar db a la función
-                printf("\n------------------------------------------------------------------------------------\n");
+                registrarLog("Registro de nuevo usuario.");
+                registrarUsuario(db);
                 break;
             case 2:
-                printf("Mostrar usuarios\n");
-                mostrarUsuarios(db); // Pasar db a la función
-                printf("\n------------------------------------------------------------------------------------\n");
+                registrarLog("Listado de usuarios mostrado.");
+                mostrarUsuarios(db);
                 break;
             case 3:
-                printf("Inicio de sesion\n");
-                iniciarSesion(db); // Pasar db a la función
-                printf("\n------------------------------------------------------------------------------------\n");
+                registrarLog("Inicio de sesión de usuario.");
+                iniciarSesion(db);
                 break;
             case 4:
+                registrarLog("Aplicación finalizada por el usuario.");
                 printf("\nSaliendo...\n");
                 break;
             default:
+                registrarLog("Opción inválida ingresada en menú principal.");
                 printf("\nOpción invalida. Intente de nuevo.\n");
         }
     } while (opcion != 4);
 
-    // Cerrar la base de datos
     sqlite3_close(db);
     return 0;
 }

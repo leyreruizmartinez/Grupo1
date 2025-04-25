@@ -29,16 +29,17 @@ void procesarLineaBD(char* linea, Libro* libro) {
 // Función para insertar los libros en la base de datos
 void insertarEnBD(sqlite3* db, Libro* libros, int num_libros) {
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Copias, Disponible) VALUES (?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO LibrosBd (ISBN, Titulo, Autor, Anio, Copias, Disponible) VALUES (?, ?, ?, ?, ?, ?);";
     
     sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     
     for (int i = 0; i < num_libros; i++) {
-        sqlite3_bind_text(stmt, 1, libros[i].titulo, -1, SQLITE_STATIC);
-        sqlite3_bind_text(stmt, 2, libros[i].autor, -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 3, libros[i].anyo_publicacion);
-        sqlite3_bind_int(stmt, 4, libros[i].copias);
-        sqlite3_bind_int(stmt, 5, libros[i].disponible);
+        sqlite3_bind_text(stmt, 1, libros[i].isbn, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, libros[i].titulo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, libros[i].autor, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 4, libros[i].anyo_publicacion);
+        sqlite3_bind_int(stmt, 5, libros[i].copias);
+        sqlite3_bind_int(stmt, 6, libros[i].disponible);
         
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             printf("Error al insertar: %s\n", sqlite3_errmsg(db));
@@ -88,12 +89,13 @@ void inicializarBaseDeDatos(sqlite3 **db) {
 
     const char *sql = "CREATE TABLE IF NOT EXISTS LibrosBd ("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                      "ISBN TEXT UNIQUE,"
                       "Titulo TEXT,"
                       "Autor TEXT,"
                       "Anio INTEGER,"
                       "Copias INTEGER,"
                       "Disponible INTEGER);"
-                      
+
                       "CREATE TABLE IF NOT EXISTS Prestamos ("
                       "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                       "UsuarioID INTEGER,"
@@ -265,7 +267,7 @@ void cargarLibrosDesdeCSV(sqlite3* db, const char* nombre_fichero) {
     char linea[MAX_C];
     Libro libro;
     sqlite3_stmt* stmt;
-    const char* sql = "INSERT INTO LibrosBd (Titulo, Autor, Anio, Disponible, Copias) VALUES (?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO LibrosBd (ISBN, Titulo, Autor, Anio, Disponible, Copias) VALUES (?, ?, ?, ?, ?, ?);";
     
     sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
 
@@ -273,11 +275,12 @@ void cargarLibrosDesdeCSV(sqlite3* db, const char* nombre_fichero) {
         linea[strcspn(linea, "\n")] = 0; // Eliminar salto de línea
         procesarLineaLibros(linea, &libro);
 
-        sqlite3_bind_text(stmt, 1, libro.titulo, -1, SQLITE_STATIC);
-        sqlite3_bind_text(stmt, 2, libro.autor, -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 3, libro.anyo_publicacion);
-        sqlite3_bind_int(stmt, 4, libro.copias);
-        sqlite3_bind_int(stmt, 5, libro.disponible);
+        sqlite3_bind_text(stmt, 1, libro.isbn, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, libro.titulo, -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, libro.autor, -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 4, libro.anyo_publicacion);
+        sqlite3_bind_int(stmt, 5, libro.copias);
+        sqlite3_bind_int(stmt, 6, libro.disponible);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
             printf("Error al insertar libro: %s\n", sqlite3_errmsg(db));

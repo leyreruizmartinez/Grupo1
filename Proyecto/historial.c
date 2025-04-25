@@ -32,7 +32,7 @@ int mostrar_historial(int id_usuario, Prestamo prestamos[]) {
                 printf("Autor: %s\n", p.autor);
                 printf("Fecha de prestamo: %s\n", p.fecha_prestamo);
                 printf("Fecha de devolucion: %s\n", p.fecha_devolucion);
-                printf("Estado: %s\n", p.estado == 0 ? "En prestamo" : p.estado == 1 ? "Devuelto" : "Otro");
+                printf("Estado: %s\n", p.estado == 0 ? "En prestamo" : p.estado == 1 ? "Devuelto" : "Atrasado");
                 printf("-----------------------------\n");
                 contador++;
             }

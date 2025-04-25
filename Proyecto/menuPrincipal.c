@@ -5,26 +5,26 @@
 #include "bd.h"
 #include "libro.h"
 #include "historial.h"
+#include "log.h"
 
 int menuPrincipal(int id_Usuario) {
     sqlite3 *db;
     int opcion;
-    int id_usuario = 1;
+    int id_usuario = id_Usuario;
 
-    // Abrir la base de datos
     if (sqlite3_open("libros.db", &db) != SQLITE_OK) {
         printf("No se pudo abrir la base de datos\n");
+        registrarLog("Error: No se pudo abrir la base de datos desde menuPrincipal.");
         return 1;
     }
+    registrarLog("Base de datos abierta correctamente desde menuPrincipal.");
 
-    // Cargar los libros desde la base de datos
     Libro* libros = NULL;
     int num_libros = 0;
 
-    // Llamar a la función para cargar los libros desde la base de datos
     libros = cargarLibrosDesdeBD("libros.db", &num_libros);
+    registrarLog("Libros cargados desde la base de datos.");
 
-    // MENU PRINCIPAL
     char str[10];
     do {
         printf("\n--- MENU PRINCIPAL ---\n");
@@ -38,12 +38,11 @@ int menuPrincipal(int id_Usuario) {
         fgets(str, sizeof(str), stdin);
         str[strcspn(str, "\n")] = '\0';
 
-        // ############## BUSQUEDA DE LIBROS ###############
         if (str[0] == '1') {
+            registrarLog("El usuario accedió a la búsqueda de libros.");
             printf("\t1. Buscar por titulo\n"
                    "\t2. Buscar por autor\n"
                    "\t3. Buscar por ISBN\n");
-
             printf("\t  ");
             char str2[5];
             fgets(str2, sizeof(str2), stdin);
@@ -54,6 +53,10 @@ int menuPrincipal(int id_Usuario) {
                 char titulo[100];
                 fgets(titulo, sizeof(titulo), stdin);
                 titulo[strcspn(titulo, "\n")] = '\0';
+
+                char mensaje[200];
+                sprintf(mensaje, "Búsqueda por título: %s", titulo);
+                registrarLog(mensaje);
 
                 int n_libros = contarLibrosTitulo(libros, num_libros, titulo);
                 Libro* array_libros = buscarLibroTitulo(libros, num_libros, titulo);
@@ -67,11 +70,16 @@ int menuPrincipal(int id_Usuario) {
                 } else {
                     printf("No se encontraron libros con el título '%s'.\n", titulo);
                 }
+
             } else if (str2[0] == '2') {
                 printf("\tIntroduce nombre del autor a buscar: ");
                 char autor[30];
                 fgets(autor, sizeof(autor), stdin);
                 autor[strcspn(autor, "\n")] = '\0';
+
+                char mensaje[200];
+                sprintf(mensaje, "Búsqueda por autor: %s", autor);
+                registrarLog(mensaje);
 
                 int n_libros = contarLibrosAutor(libros, num_libros, autor);
                 Libro* array_libros = buscarLibroAutor(libros, num_libros, autor);
@@ -85,11 +93,16 @@ int menuPrincipal(int id_Usuario) {
                 } else {
                     printf("No se encontraron libros de autor '%s'.\n", autor);
                 }
+
             } else if (str2[0] == '3') {
                 printf("\tIntroduce el ISBN completo del libro a buscar: ");
                 char isbn[14];
                 fgets(isbn, sizeof(isbn), stdin);
                 isbn[strcspn(isbn, "\n")] = '\0';
+
+                char mensaje[200];
+                sprintf(mensaje, "Búsqueda por ISBN: %s", isbn);
+                registrarLog(mensaje);
 
                 int n_libros = contarLibrosISBN(libros, num_libros, isbn);
                 Libro* array_libros = buscarLibroISBN(libros, num_libros, isbn);
@@ -105,8 +118,8 @@ int menuPrincipal(int id_Usuario) {
                 }
             }
 
-        // ################### LISTAR LIBROS DISPONIBLES #####################
         } else if (str[0] == '2') {
+            registrarLog("El usuario solicitó listar libros disponibles.");
             int libros_disponibles = 0;
             for (int i = 0; i < num_libros; i++) {
                 if (libros[i].disponible == 1) {
@@ -118,12 +131,11 @@ int menuPrincipal(int id_Usuario) {
                 printf("No hay libros disponibles actualmente.\n");
             }
 
-        // ################### HISTORIAL DE PRESTAMOS #####################
         } else if (str[0] == '3') {
+            registrarLog("El usuario consultó su historial de préstamos.");
             Prestamo prestamos[100];
             mostrar_historial(id_usuario, prestamos);
 
-        // ################### PEDIR UN LIBRO #####################
         } else if (str[0] == '4') {
             Prestamo prestamos[100];
             mostrar_historial(id_usuario, prestamos);
@@ -131,30 +143,32 @@ int menuPrincipal(int id_Usuario) {
             char isbn[14];
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
-                
-            pedir_libro(id_usuario, isbn);
-            
 
-        // ################### DEVOLVER UN LIBRO #####################
+            char mensaje[200];
+            sprintf(mensaje, "El usuario %d pidió en préstamo el libro con ISBN %s", id_usuario, isbn);
+            registrarLog(mensaje);
+
+            pedir_libro(id_usuario, isbn);
+
         } else if (str[0] == '5') {
             printf("Ingrese el ISBN del libro que desea devolver: ");
             char isbn[14];
             fgets(isbn, sizeof(isbn), stdin);
             isbn[strcspn(isbn, "\n")] = '\0'; 
 
+            char mensaje[200];
+            sprintf(mensaje, "El usuario %d devolvió el libro con ISBN %s", id_usuario, isbn);
+            registrarLog(mensaje);
+
             devolver_libro(id_usuario, isbn);
 
-        // ################### OPCIONES DE NAVEGACION #####################
         } else if (str[0] == '6') {
+            registrarLog("El usuario salió del menú principal.");
             break;
         } 
     } while (1);
 
-    // Liberamos memoria
     free(libros);
-    libros = NULL;
-
-    // Cerramos la base de datos
     sqlite3_close(db);
 
     printf("\nPresione Enter para salir...\n");
