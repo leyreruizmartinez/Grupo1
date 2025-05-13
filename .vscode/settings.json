@@ -7,7 +7,8 @@
       "*.zip": "bat",
       "*.rmd": "markdown",
       "math.h": "c",
-      "prestamo.h": "c"
+      "prestamo.h": "c",
+      "sqlite3.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
   }
