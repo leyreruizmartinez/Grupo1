@@ -1,7 +1,16 @@
 {
+    "terminal.integrated.env.windows": {
+      "PATH": "C:/msys64/mingw64/bin:${env:PATH}"
+    },
     "files.associations": {
-        "*.rmd": "markdown",
-        "libro.h": "c",
-        "sqlite3.h": "c"
-    }
-}
+      "*.ttf": "bat",
+      "*.zip": "bat",
+      "*.rmd": "markdown",
+      "math.h": "c",
+      "prestamo.h": "c",
+      "stdio.h": "c",
+      "stdlib.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+  }
+  
