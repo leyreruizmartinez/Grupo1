@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sqlite3.h"
+#include "../bd/sqlite3.h"
 
 #define MAX_C 150
-#define DB_NAME "libros.db"
-#define FILENAME "libros.csv"
+#define DB_NAME "../bd/libros.db"
+#define FILENAME "../bd/libros.csv"
 
 // Definición de la estructura Libro
 typedef struct {
