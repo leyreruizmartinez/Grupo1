@@ -6,7 +6,7 @@
 #include "bd.h"
 #include "log.h"
 
-#define DB_NAME "libros.db"
+#define DB_NAME "datos/libros.db"
 
 int main(void) {
     const char *nombreArchivo = DB_NAME;
@@ -35,16 +35,16 @@ int main(void) {
     inicializarCSV();
     registrarLog("CSV inicializados.");
 
-    cargarLibrosDesdeCSV(db, "libros.csv");
+    cargarLibrosDesdeCSV(db, "datos/libros.csv");
     registrarLog("Libros cargados desde CSV.");
 
-    cargarUsuariosDesdeCSV(db, "usuarios.csv");
+    cargarUsuariosDesdeCSV(db, "datos/usuarios.csv");
     registrarLog("Usuarios cargados desde CSV.");
 
-    cargarHistorialDesdeCSV(db, "historial.csv");
+    cargarHistorialDesdeCSV(db, "datos/historial.csv");
     registrarLog("Historial cargado desde CSV.");
 
-    cargarPrestamosDesdeCSV(db, "prestamos.csv");
+    cargarPrestamosDesdeCSV(db, "datos/prestamos.csv");
     registrarLog("Préstamos cargados desde CSV.");
 
     int opcion;

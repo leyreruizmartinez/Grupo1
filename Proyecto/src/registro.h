@@ -2,6 +2,8 @@
 #ifndef _REGISTRO_H
 #define _REGISTRO_H
 
+#include "../bd/sqlite3.h"
+
 // define variables globales ---------------------------------------------
 #define MAX_USUARIOS 100
 #define MAX_LENGTH 50
@@ -29,5 +31,6 @@ int validarCorreo(const char *correo);
 int validarTelefono(const char *telefono);
 void inicializarCSV();
 void iniciarSesion();
+int registrarUsuarioRemoto(sqlite3 *db, const char *nombre, const char *apellido, const char *usuario, const char *clave);
 
 #endif

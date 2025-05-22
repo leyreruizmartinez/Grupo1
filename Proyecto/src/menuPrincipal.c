@@ -12,7 +12,7 @@ int menuPrincipal(int id_Usuario) {
     int opcion;
     int id_usuario = id_Usuario;
 
-    if (sqlite3_open("libros.db", &db) != SQLITE_OK) {
+    if (sqlite3_open("../datos/libros.db", &db) != SQLITE_OK) {
         printf("No se pudo abrir la base de datos\n");
         registrarLog("Error: No se pudo abrir la base de datos desde menuPrincipal.");
         return 1;
@@ -22,7 +22,7 @@ int menuPrincipal(int id_Usuario) {
     Libro* libros = NULL;
     int num_libros = 0;
 
-    libros = cargarLibrosDesdeBD("libros.db", &num_libros);
+    libros = cargarLibrosDesdeBD("../datos/libros.db", &num_libros);
     registrarLog("Libros cargados desde la base de datos.");
 
     char str[10];

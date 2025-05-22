@@ -3,7 +3,7 @@
 #include <string.h>
 
 void registrarLog(const char *mensaje) {
-    FILE *logFile = fopen("app.log", "a");
+    FILE *logFile = fopen("datos/app.log", "a");
     if (logFile == NULL) {
         fprintf(stderr, "Error al abrir el archivo de log.\n");
         return;

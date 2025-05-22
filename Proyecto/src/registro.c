@@ -6,8 +6,9 @@
 
 #include "registro.h"
 #include "menuPrincipal.h"
+#include "bd.h"
 
-#define FILENAME "usuarios.csv" // define el nombre el archivo para que no se pueda modificar
+#define FILENAME "datos/usuarios.csv" // define el nombre el archivo para que no se pueda modificar
 
 // INICIALIZAR EL ARCHIVO -> CREARLO SI NO EXISTE -----------------------------------------------------------------------------------------------------------------------
 void inicializarCSV() {

@@ -1,2 +1,0 @@
-[INICIO CLIENTE] IP: 127.0.0.1, PUERTO: 8080
-[REGISTRO] maialen@gmail.com

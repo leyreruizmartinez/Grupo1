@@ -11,7 +11,7 @@
 // Funciones para libros
 int cargar_libros(Libro libros[]);
 int actualizar_libros(Libro libros[], int total_libros);
-void listar_libros(Libro libros[], int total_libros);
+int listar_libros(Libro** libros_disponibles, int* cantidad);
 int buscar_libro(Libro libros[], int total_libros, char *isbn);
 
 // Funciones para historial de préstamos
@@ -34,5 +34,8 @@ void cargarUsuariosDesdeCSV(sqlite3* db, const char* nombre_fichero);
 void cargarLibrosDesdeCSV(sqlite3* db, const char* nombre_fichero);
 void cargarPrestamosDesdeCSV(sqlite3 *db, const char *archivo);
 
+sqlite3* abrirBD();
+void cerrarBD(sqlite3 *db);
+int login_remoto(sqlite3 *db, const char *correo, const char *clave);
 
 #endif

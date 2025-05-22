@@ -261,13 +261,3 @@ void devolver_libro(int id_usuario, char* isbn) {
 
     free(libros);
 }
-
-
-
-
-
-
-
-
-
-
