@@ -3,7 +3,7 @@
 #include "log.h"
 
 void registrar_log(const char *accion, const char *detalle) {
-    FILE *log = fopen("/datos/log_servidor.txt", "a");
+    FILE *log = fopen("datos/log_servidor.txt", "a");
     if (!log) return;
 
     time_t ahora = time(NULL);
