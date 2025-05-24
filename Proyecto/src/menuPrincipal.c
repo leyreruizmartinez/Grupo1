@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../bd/sqlite3.h"
-#include "bd.h"
 #include "libro.h"
+#include "bd.h"
 #include "historial.h"
 #include "log.h"
 

@@ -7,6 +7,7 @@
 #include "registro.h"
 #include "menuPrincipal.h"
 #include "bd.h"
+#include "usuario.h"
 
 #define FILENAME "datos/usuarios.csv" // define el nombre el archivo para que no se pueda modificar
 
@@ -97,11 +98,11 @@ void mostrarUsuarios() {
 
     while (fgets(buffer, sizeof(buffer), file)) {
         Usuario user;
-        sscanf(buffer, "%d,%49[^,],%49[^,],%99[^,],%19[^,],%49[^,],%s",
+        sscanf(buffer, "%d,%49[^,],%49[^,],%99[^,],%19[^,],%49[^,],%d",
                &user.id, user.nombre, user.apellido, user.correo, user.telefono, user.contrasena, &user.sancionado);
 
         printf("\tID: %d | Nombre: %s %s | Correo: %s | Telefono: %s | Sancionado: %s\n",
-               user.id, user.nombre, user.apellido, user.correo, user.telefono, user.sancionado ? "No" : "Si");
+               user.id, user.nombre, user.apellido, user.correo, user.telefono, user.sancionado ? "Sí" : "No");
     }
 
     fclose(file);
@@ -161,3 +162,50 @@ void iniciarSesion() {
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+int registrar_usuario_remoto(sqlite3 *db, const char *nombre, const char *apellido, const char *correo, const char *telefono, const char *clave) {
+    char sql[512];
+    snprintf(sql, sizeof(sql),
+             "INSERT INTO usuarios (nombre, apellido, correo, telefono, contrasena, sancionado) VALUES ('%s', '%s', '%s', '%s', '%s', 0);",
+             nombre, apellido, correo, telefono, clave);
+
+    char *err = NULL;
+    if (sqlite3_exec(db, sql, 0, 0, &err) != SQLITE_OK) {
+        fprintf(stderr, "Error al registrar usuario: %s\n", err);
+        sqlite3_free(err);
+        return 0;
+    }
+
+    // Escribir todos los usuarios actuales en el CSV
+    FILE *file = fopen("datos/usuarios.csv", "w");
+    if (!file) {
+        printf("Error al abrir el archivo CSV para escritura\n");
+        return 1; // Registrado, pero sin poder escribir CSV
+    }
+
+    fprintf(file, "id,nombre,apellido,correo,telefono,contrasena,sancionado\n");
+
+    const char *select_sql = "SELECT id, nombre, apellido, correo, telefono, contrasena, sancionado FROM usuarios;";
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(db, select_sql, -1, &stmt, 0) == SQLITE_OK) {
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            int id = sqlite3_column_int(stmt, 0);
+            const char *nombre_db = (const char *)sqlite3_column_text(stmt, 1);
+            const char *apellido_db = (const char *)sqlite3_column_text(stmt, 2);
+            const char *correo_db = (const char *)sqlite3_column_text(stmt, 3);
+            const char *telefono_db = (const char *)sqlite3_column_text(stmt, 4);
+            const char *clave_db = (const char *)sqlite3_column_text(stmt, 5);
+            int sancionado = sqlite3_column_int(stmt, 6);
+
+            fprintf(file, "%d,%s,%s,%s,%s,%s,%d\n", id, nombre_db, apellido_db, correo_db, telefono_db, clave_db, sancionado);
+        }
+    } else {
+        printf("Error al preparar la consulta SELECT para actualizar el CSV\n");
+    }
+
+    sqlite3_finalize(stmt);
+    fclose(file);
+
+    return 1;
+}

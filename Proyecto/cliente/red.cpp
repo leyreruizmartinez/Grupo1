@@ -4,13 +4,11 @@
 bool conectarServidor(const char* ip, int puerto, SOCKET &sock) {
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-        std::cerr << "Error en WSAStartup\n";
         return false;
     }
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
-        std::cerr << "No se pudo crear el socket\n";
         return false;
     }
 
@@ -20,11 +18,31 @@ bool conectarServidor(const char* ip, int puerto, SOCKET &sock) {
     server.sin_port = htons(puerto);
 
     if (connect(sock, (struct sockaddr*)&server, sizeof(server)) < 0) {
-        std::cerr << "No se pudo conectar al servidor\n";
         return false;
     }
 
     return true;
+}
+
+void enviar_string(SOCKET sock, const std::string& str) {
+    int len = (int)str.size();
+    send(sock, (char*)&len, sizeof(int), 0);
+    send(sock, str.c_str(), len, 0);
+}
+
+std::string recibir_string(SOCKET sock) {
+    int len = 0;
+    if (recv(sock, (char*)&len, sizeof(int), 0) <= 0)
+        return {};
+
+    std::string buffer(len, '\0');
+    int recibido = 0;
+    while (recibido < len) {
+        int r = recv(sock, &buffer[recibido], len - recibido, 0);
+        if (r <= 0) return {};
+        recibido += r;
+    }
+    return buffer;
 }
 
 void cerrarConexion(SOCKET sock) {

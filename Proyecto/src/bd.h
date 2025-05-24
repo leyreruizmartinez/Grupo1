@@ -38,4 +38,16 @@ sqlite3* abrirBD();
 void cerrarBD(sqlite3 *db);
 int login_remoto(sqlite3 *db, const char *correo, const char *clave);
 
+void insertar_prestamo_sqlite(sqlite3 *db, int id_usuario, const char* isbn);
+
+int insertar_historial_sqlite(sqlite3 *db, int id_usuario, const char *isbn, const char *titulo, const char *autor, const char *fecha_prestamo, const char *fecha_devolucion, int estado);
+int actualizar_estado_historial_sqlite(sqlite3 *db, int id_usuario, const char *isbn, int nuevo_estado);
+
+int obtener_libro_por_isbn(sqlite3 *db, const char *isbn, Libro *libro);
+int obtener_estado_devolucion(sqlite3 *db, int id_usuario, const char *isbn, const char *fecha_actual);
+
+int calcular_dias_entre_fechas(const char *fecha1, const char *fecha2);
+
+void actualizar_copias_libro(sqlite3 *db, const char *isbn, int cambio);
+
 #endif

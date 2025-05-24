@@ -9,6 +9,8 @@
 #define CMD_PEDIR_LIBRO     5
 #define CMD_DEVOLVER_LIBRO  6
 
+#define PUERTO_SERVIDOR 8080  // <-- Aquí defines el puerto del servidor
+
 // --- Respuestas del servidor al cliente ---
 #define RESP_OK             100
 #define RESP_ERROR          101
