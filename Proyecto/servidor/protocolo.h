@@ -9,7 +9,7 @@
 #define CMD_PEDIR_LIBRO     5
 #define CMD_DEVOLVER_LIBRO  6
 
-#define PUERTO_SERVIDOR 8080  // <-- Aquí defines el puerto del servidor
+#define PUERTO_SERVIDOR 8080
 
 // --- Respuestas del servidor al cliente ---
 #define RESP_OK             100
@@ -24,7 +24,7 @@
 // --- Tamaño máximo para mensajes ---
 #define BUFFER_SIZE         1024
 
-// --- Estructura de un libro (puedes usarlo como referencia para el cliente y servidor) ---
+// --- Estructura de un libro ---
 typedef struct {
     int id;
     char titulo[100];

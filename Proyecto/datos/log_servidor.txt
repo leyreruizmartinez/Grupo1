@@ -1,1 +1,30 @@
 [2025-05-24 04:46:55] SERVIDOR: Iniciado
+[2025-05-24 12:36:17] SERVIDOR: Iniciado
+[2025-05-24 12:49:55] REGISTRO OK: kidflash@gmail.com
+[2025-05-24 12:50:08] LOGIN OK: kidflash@gmail.com
+[2025-05-24 13:58:10] SERVIDOR: Iniciado
+[2025-05-24 13:58:15] CLIENTE: Conectado
+[2025-05-24 13:58:17] COMANDO: Comando recibido: 3
+[2025-05-24 13:58:32] REGISTRO: Exito
+[2025-05-24 13:58:36] COMANDO: Comando recibido: 1
+[2025-05-24 13:58:41] LOGIN: Exito
+[2025-05-24 13:58:45] COMANDO: Comando recibido: 4
+[2025-05-24 13:58:45] LISTAR_LIBROS: Libros encontrados: 20
+[2025-05-24 13:58:47] COMANDO: Comando recibido: 5
+[2025-05-24 13:59:09] PEDIR_LIBRO: Usuario 2009661512 pide libro ISBN: 9788417854508
+[2025-05-24 13:59:09] PEDIR_LIBRO: Fallido
+[2025-05-24 13:59:24] COMANDO: Comando recibido: 5
+[2025-05-24 13:59:34] PEDIR_LIBRO: Usuario 2009661512 pide libro ISBN: 9788401026120
+[2025-05-24 13:59:34] PEDIR_LIBRO: Exito
+[2025-05-24 13:59:39] COMANDO: Comando recibido: 6
+[2025-05-24 13:59:49] DEVOLVER_LIBRO: Usuario 2009661512 devuelve libro ISBN: 9788401026120
+[2025-05-24 13:59:49] DEVOLVER_LIBRO: Exito
+[2025-05-24 13:59:53] CLIENTE: Desconectado o error al recibir comando
+[2025-05-24 13:59:53] CLIENTE: Desconectado
+[2025-05-24 13:59:53] CLIENTE: Finalizo sesión
+[2025-05-24 14:00:04] CLIENTE: Conectado
+[2025-05-24 14:00:07] COMANDO: Comando recibido: 4
+[2025-05-24 14:00:07] LISTAR_LIBROS: Libros encontrados: 20
+[2025-05-24 14:00:58] CLIENTE: Desconectado o error al recibir comando
+[2025-05-24 14:00:58] CLIENTE: Desconectado
+[2025-05-24 14:00:58] CLIENTE: Finalizo sesión

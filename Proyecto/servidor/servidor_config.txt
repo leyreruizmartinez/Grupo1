@@ -1,0 +1,2 @@
+PUERTO_SERVIDOR=8080
+RUTA_BD=datos/libros.db

@@ -1,0 +1,6 @@
+Registro exitoso: batman@gmail.com
+Login exitoso, ID usuario: 2009661512
+Libros listados y cacheados.
+Libro pedido correctamente, ISBN: 9788401026120
+Libro devuelto con exito, ISBN: 9788401026120
+Libros listados y cacheados.

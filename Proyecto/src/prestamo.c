@@ -39,7 +39,7 @@ int pedir_libro(int id_usuario, const char* isbn) {
     int atrasados = contar_prestamos_atrasados(id_usuario);
     if (atrasados < 0) return -1;
     if (atrasados >= 3) {
-        printf("No puede pedir más libros, tiene %d préstamos atrasados.\n", atrasados);
+        printf("No puede pedir mas libros, tiene %d prestamos atrasados.\n", atrasados);
         return -1;
     }
 
@@ -241,7 +241,7 @@ int pedir_libro_remoto(sqlite3 *db, int id_usuario, const char* isbn) {
     int atrasados = contar_prestamos_atrasados(id_usuario);
     if (atrasados < 0) return -1;
     if (atrasados >= 3) {
-        printf("No puede pedir más libros, tiene %d préstamos atrasados.\n", atrasados);
+        printf("No puede pedir mas libros, tiene %d prestamos atrasados.\n", atrasados);
         return -1;
     }
 
@@ -338,7 +338,7 @@ int devolver_libro_remoto(sqlite3 *db, int id_usuario, const char* isbn) {
     rc = sqlite3_step(stmt);
     if (rc != SQLITE_ROW) {
         sqlite3_finalize(stmt);
-        printf("No se encontró el préstamo activo.\n");
+        printf("No se encontro el prestamo activo.\n");
         return -1;
     }
 
